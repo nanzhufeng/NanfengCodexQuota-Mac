@@ -44,6 +44,24 @@ final class ContextCard: FlippedView {
         NSRect(x: 12, y: 127, width: bounds.width - 24, height: 1 / (window?.backingScaleFactor ?? 2)).fill()
     }
 }
+// Draw only the rounded shadow, outside the unchanged glass surface. The clear
+// inset gives it room to fade without exposing the rectangular window bounds.
+final class ContextSurfaceHost: NSView {
+    static let inset: CGFloat = 16
+    override func draw(_ dirtyRect: NSRect) {
+        guard let context = NSGraphicsContext.current?.cgContext else { return }
+        let surface = bounds.insetBy(dx: Self.inset, dy: Self.inset)
+        let path = CGPath(roundedRect: surface, cornerWidth: 11, cornerHeight: 11, transform: nil)
+        context.saveGState()
+        context.setShadow(offset: CGSize(width: 0, height: -2), blur: 10, color: NSColor.black.withAlphaComponent(0.16).cgColor)
+        context.setFillColor(NSColor.white.cgColor)
+        context.addPath(path); context.fillPath()
+        context.setShadow(offset: .zero, blur: 0, color: nil)
+        context.setBlendMode(.clear)
+        context.addPath(path); context.fillPath()
+        context.restoreGState()
+    }
+}
 final class ContextPanel: NSPanel {
     var dismiss: (() -> Void)?
     override var canBecomeKey: Bool { true }
@@ -52,6 +70,7 @@ final class ContextPanel: NSPanel {
 final class ContextMenuController: NSObject {
     private(set) var panel: ContextPanel?
     private(set) var contentCard: ContextCard?
+    var surfaceFrame: NSRect? { panel?.frame.insetBy(dx: ContextSurfaceHost.inset, dy: ContextSurfaceHost.inset) }
     private var entries: [NSMenuItem] = []
     private var localMonitor: Any?
     private var globalMonitor: Any?
@@ -68,14 +87,17 @@ final class ContextMenuController: NSObject {
         close()
         entries = menu.items.filter { !$0.isSeparatorItem }
         let work = NSScreen.screens.first { $0.frame.contains(point) }?.visibleFrame ?? NSScreen.main!.visibleFrame
-        let window = ContextPanel(contentRect: Self.frame(click: point, work: work), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        let surface = Self.frame(click: point, work: work)
+        let inset = ContextSurfaceHost.inset
+        let window = ContextPanel(contentRect: surface.insetBy(dx: -inset, dy: -inset), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.title = "南枫 Codex 额度菜单"; window.isOpaque = false; window.backgroundColor = .clear
-        // The glass supplies its own rounded surface. A second WindowServer
-        // shadow follows the rectangular panel and exposes a hard outer frame.
+        // Use the rounded surface shadow, not a second rectangular window shadow.
         window.hasShadow = false; window.hidesOnDeactivate = false; window.isReleasedWhenClosed = false
         window.level = .popUpMenu; window.appearance = NSAppearance(named: .aqua)
         window.dismiss = { [weak self] in self?.close() }
         let card = ContextCard(frame: NSRect(origin: .zero, size: Self.size))
+        let host = ContextSurfaceHost(frame: NSRect(origin: .zero, size: window.frame.size))
+        let glassFrame = NSRect(origin: NSPoint(x: inset, y: inset), size: Self.size)
         card.wantsLayer = true
         for (index, entry) in entries.enumerated() {
             let row = ContextRow(entry: entry, index: index, owner: self)
@@ -83,17 +105,18 @@ final class ContextMenuController: NSObject {
             card.addSubview(row)
         }
         if #available(macOS 26.0, *) {
-            let glass = NSGlassEffectView(frame: card.bounds)
+            let glass = NSGlassEffectView(frame: glassFrame)
             glass.style = .regular; glass.cornerRadius = 11
             glass.tintColor = NSColor.white.withAlphaComponent(0.08)
             glass.contentView = card
-            window.contentView = glass
+            host.addSubview(glass)
         } else {
-            let glass = NSVisualEffectView(frame: card.bounds)
+            let glass = NSVisualEffectView(frame: glassFrame)
             glass.material = .menu; glass.blendingMode = .behindWindow; glass.state = .active
             glass.wantsLayer = true; glass.layer?.cornerRadius = 11; glass.layer?.masksToBounds = true
-            glass.addSubview(card); window.contentView = glass
+            glass.addSubview(card); host.addSubview(glass)
         }
+        window.contentView = host
         contentCard = card; panel = window
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .keyDown]) { [weak self, weak window] event in
             guard let self else { return event }

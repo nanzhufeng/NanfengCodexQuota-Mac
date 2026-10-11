@@ -44,7 +44,8 @@ final class NativeQA {
             if let menu = app.contextMenu.panel, let card = app.contextMenu.contentCard {
                 let rows = card.subviews.compactMap { $0 as? ContextRow }
                 check("context_menu_all_five_items", rows.map(\.title) == ["立即刷新", "打开主界面", "保持置顶", "隐藏悬浮窗", "退出"] && rows.allSatisfy { card.bounds.contains($0.frame) })
-                check("context_menu_upper_right_anchor", menu.frame.minX > click.x && menu.frame.minY > click.y)
+                let surface = app.contextMenu.surfaceFrame!
+                check("context_menu_upper_right_anchor", surface.minX == click.x + 8 && surface.minY == click.y + 8 && surface.size == ContextMenuController.size)
                 let anchored = menu.frame
                 app.poll()
                 check("context_menu_position_stable", menu.frame == anchored)
