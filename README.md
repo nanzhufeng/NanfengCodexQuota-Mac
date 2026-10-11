@@ -11,17 +11,21 @@ macOS 原生只读额度悬浮窗，复用本机 Codex 登录，无需保持 Cod
 
 ## 安装与使用
 
-支持 macOS 13+，Apple Silicon / Intel 通用二进制。打开 `dist/南枫Codex额度-Mac-v0.1.4-universal.dmg`，将“南枫 Codex 额度.app”拖到 Applications。先在 Codex 中登录，再运行应用。
+支持 macOS 13+，Apple Silicon / Intel 通用二进制。[下载最新版安装包](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/latest)。打开 DMG，将“南枫 Codex 额度.app”拖到 Applications。先在 Codex 中登录，再运行应用。
+
+GitHub 附件 `NanfengCodexQuota-Mac-v0.1.4-universal.dmg` 对应本地中文安装包“南枫Codex额度-Mac-v0.1.4-universal.dmg”；同版本提供 SHA-256 校验文件。
 
 点击或双击菜单栏图标打开主界面；右键菜单栏或圆窗可刷新、打开主界面、切换置顶、隐藏 / 显示与退出。双击圆窗也可打开主界面。关闭设置窗口后额度监控继续运行。
 
 登录启动默认关闭，开关显示真实系统状态；需要系统批准时会打开“系统设置 → 通用 → 登录项”。设置保存在 `~/Library/Application Support/NanfengCodexQuota/settings.toml`。删除应用不会删除设置或 Codex 登录。
 
-本地包使用 ad-hoc 签名，尚未 Developer ID 签名或 Apple 公证。真实系统登录授权、多屏、睡眠唤醒、长期运行和 Intel 硬件尚需另行验收。
+当前发布包使用 ad-hoc 签名，尚未 Developer ID 签名或 Apple 公证，下载后可能受到 Gatekeeper 限制。登录项真实注册已通过；实际下次登录自动启动、多屏、睡眠唤醒、长期运行和 Intel 硬件尚需另行验收。
 
 ## 界面预览
 
-Mac v0.1.4 原生运行页面，1064×711 pt 内容区；额度来自隔离 fixture，展示完整两窗口状态，截图不是用户真实账户数据。
+Mac v0.1.4，生产提交 `5fb9ebf`，Apple Silicon / macOS 26.5.2 的真实原生运行页面。常规与关于内容区 1064×711 pt，悬浮窗 132×132 pt；额度来自隔离 fixture，截图不包含用户账户数据。
+
+![悬浮窗](docs/images/mac-widget.png)
 
 ![常规](docs/images/mac-settings.png)
 ![关于](docs/images/mac-about.png)
