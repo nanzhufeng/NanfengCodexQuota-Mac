@@ -67,7 +67,8 @@ mkdir -p "$staging"
 # ditto preserves application symlinks and metadata without changing user's installed apps.
 ditto "$app" "$staging/南枫 Codex 额度.app"
 if [[ ! -e "$staging/Applications" && ! -L "$staging/Applications" ]]; then ln -s /Applications "$staging/Applications"; fi
-dmg='dist/南枫Codex额度-Mac-v0.1.4-universal.dmg'
+app_version=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$app/Contents/Info.plist")
+dmg="dist/南枫Codex额度-Mac-v${app_version}-universal.dmg"
 hdiutil create -quiet -ov -format UDZO -volname '南枫 Codex 额度' -srcfolder "$staging" "$dmg"
 if [[ "$mode" == --distribute ]]; then
   codesign --force --timestamp --sign "$quota_sign_identity" "$dmg"

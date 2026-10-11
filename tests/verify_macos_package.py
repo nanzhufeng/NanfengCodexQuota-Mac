@@ -9,7 +9,8 @@ import tempfile
 import time
 root=Path(__file__).resolve().parent.parent
 app=root/'dist/南枫 Codex 额度.app'
-dmg=root/'dist/南枫Codex额度-Mac-v0.1.4-universal.dmg'
+with (app/'Contents/Info.plist').open('rb') as stream: app_info=plistlib.load(stream)
+dmg=root/f"dist/南枫Codex额度-Mac-v{app_info['CFBundleShortVersionString']}-universal.dmg"
 mount=Path(tempfile.mkdtemp(prefix='nanfeng-quota-dmg-'))
 probe=Path(tempfile.mkdtemp(prefix='nanfeng-quota-live-'))
 attached=False
@@ -23,6 +24,8 @@ try:
     subprocess.run(['codesign','--verify','--deep','--strict',str(mounted)],check=True)
     with (mounted/'Contents/Info.plist').open('rb') as stream: info=plistlib.load(stream)
     assert info['CFBundleIdentifier']=='studio.nanzhufeng.codexquota.mac'
+    assert info.get('LSUIElement') is not True, 'Bundle is incorrectly hidden as an agent app'
+    assert info.get('LSApplicationCategoryType')=='public.app-category.utilities'
     arches=subprocess.check_output(['lipo','-archs',str(mounted/binary)],text=True).strip()
     assert set(arches.split())=={'arm64','x86_64'}
     with (probe/'process.log').open('w') as log:

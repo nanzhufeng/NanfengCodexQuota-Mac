@@ -24,6 +24,7 @@ final class NativeQA {
         ticks += 1
         if ticks > 180 { check("completed_before_timeout", false); finish(); return }
         guard let view = app.settingsView, let snapshot = app.latest else { return }
+        check("normal_application_system_role", NSRunningApplication.current.activationPolicy == .regular)
         if liveOnly {
             guard snapshot.status == "已连接" && !snapshot.refreshing else { return }
             check("native_app_reads_real_service", true)
