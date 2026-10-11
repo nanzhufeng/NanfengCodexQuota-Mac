@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var qaCLI: String?
     private var notificationName: Notification.Name!
     private var qa: NativeQA?
+    let contextMenu = ContextMenuController()
     var loginEnabled: Bool { qaRoot == nil && SMAppService.mainApp.status == .enabled }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -110,8 +111,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc func statusClick(_ sender: Any?) {
         if NSApp.currentEvent?.type != .rightMouseUp { openSettings(); return }
-        statusItem.menu = makeMenu(); statusItem.button?.performClick(nil); statusItem.menu = nil
+        showContextMenu(at: NSEvent.mouseLocation)
     }
+    func showContextMenu(at point: NSPoint) { contextMenu.show(makeMenu(), at: point) }
     @objc func openSettings() {
         if settingsWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1064, height: 711), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -203,6 +205,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @objc func openGitHub() { NSWorkspace.shared.open(URL(string: "https://github.com/nanzhufeng/NanfengCodexQuota-Windows")!) }
     @objc func quitApp() { NSApp.terminate(nil) }
     func applicationWillTerminate(_ notification: Notification) {
+        contextMenu.close()
         if panel != nil { savePosition() }
         quitting = true; timer?.invalidate(); positionTimer?.invalidate(); core?.close()
         if instanceFD >= 0 { flock(instanceFD, LOCK_UN); Darwin.close(instanceFD); instanceFD = -1 }

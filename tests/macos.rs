@@ -24,7 +24,7 @@ fn await_snapshot(core: &mut MacCore, expected: &str) -> Value {
     let deadline = Instant::now() + Duration::from_secs(4);
     loop {
         let value = core.snapshot();
-        if value["status"] == expected {
+        if value["status"] == expected && value["refreshing"] == false {
             return value;
         }
         assert!(Instant::now() < deadline, "state was {}", value["status"]);

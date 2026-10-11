@@ -130,7 +130,7 @@ final class SettingsView: FlippedView {
         topButton.state = snapshot.config.always_on_top ? .on : .off
         startupButton.state = loginState ? .on : .off
         intervalButton.title = "\(snapshot.config.interval_secs) 秒"
-        refreshButton.title = snapshot.refreshing ? "刷新中" : "立即刷新"
+        refreshButton.title = "立即刷新"
         refreshButton.isEnabled = !snapshot.refreshing
         badge.text = snapshot.status; badge.kind = snapshot.statusKind; badge.needsDisplay = true
         [topButton, startupButton, intervalButton, refreshButton].forEach { $0?.needsDisplay = true }

@@ -30,6 +30,6 @@ final class WidgetView: FlippedView {
         if event.clickCount == 2 { app.openSettings(); return }
         window?.performDrag(with: event); app.savePosition()
     }
-    override func rightMouseDown(with event: NSEvent) { NSMenu.popUpContextMenu(app.makeMenu(), with: event, for: self) }
+    override func rightMouseDown(with event: NSEvent) { app.showContextMenu(at: NSEvent.mouseLocation) }
 }
 final class WidgetPanel: NSPanel { override var canBecomeKey: Bool { false } }

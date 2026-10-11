@@ -54,8 +54,6 @@ impl Monitor {
             .and_then(|l| l.secondary.remaining_percent());
         let label = if let Some(f) = self.failure {
             f.label().to_string()
-        } else if self.refreshing {
-            "刷新中".into()
         } else if self.stale(now, interval) {
             "数据过期".into()
         } else if let Some(l) = &self.limits {
@@ -78,8 +76,6 @@ impl Monitor {
     pub fn details(&self, now: DateTime<Utc>, interval: u64) -> String {
         let status = if let Some(f) = self.failure {
             f.label()
-        } else if self.refreshing {
-            "正在刷新"
         } else if self.stale(now, interval) {
             "数据过期"
         } else if self.limits.is_some() {
@@ -127,6 +123,33 @@ pub fn clamp_position(x: i32, y: i32, size: i32, work: (i32, i32, i32, i32)) -> 
 mod tests {
     use super::*;
     use crate::limits::LimitWindow;
+    #[test]
+    fn background_refresh_preserves_last_success_timestamp() {
+        let now = Utc::now();
+        let mut m = Monitor::default();
+        m.succeeded(
+            RateLimits {
+                sampled_at: now,
+                ..Default::default()
+            },
+            "CLI".into(),
+        );
+        let before = m.render_model(now, 60).refresh_label;
+        m.started();
+        assert_eq!(m.render_model(now, 60).refresh_label, before);
+        m.succeeded(
+            RateLimits {
+                sampled_at: now + chrono::Duration::minutes(1),
+                ..Default::default()
+            },
+            "CLI".into(),
+        );
+        assert_ne!(
+            m.render_model(now + chrono::Duration::minutes(1), 60)
+                .refresh_label,
+            before
+        );
+    }
     #[test]
     fn failure_preserves_last_success_and_marks_stale() {
         let mut m = Monitor::default();

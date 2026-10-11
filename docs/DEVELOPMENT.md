@@ -8,7 +8,7 @@
 | config / mac_core | Application Support 原子设置；损坏或新版本文件阻止覆盖；C ABI 主线程唯一句柄 |
 | weekly_quota_render | 原 Windows 圆窗的同一像素算法；1× / Retina 2× BGRA 输出，不重画设计 |
 | macos/Core.swift / Controls.swift / SettingsView.swift / WidgetView.swift | C ABI 桥、共享控件、两页仪表和悬浮窗 |
-| macos/AppDelegate.swift / QA.swift | Mac 生命周期、菜单栏、SMAppService、flock、位置与隔离 QA |
+| macos/AppDelegate.swift / ContextMenu.swift / QA.swift | Mac 生命周期、菜单栏、SMAppService、flock、位置与隔离 QA |
 | scripts/build-macos.sh | 两架构静态链接、原图导出 icns、.app / DMG、签名与公证边界 |
 
 `mac_core` 的 C ABI 仅允许主线程串行调用。其 CString 由 quota_string_free 释放，句柄退出时只释放一次；Rust Worker 内部线程负责 I/O，不阻塞 UI。Mac UI 与原图同内容区对比，Mac 系统字形及标准窗口框是平台适配。

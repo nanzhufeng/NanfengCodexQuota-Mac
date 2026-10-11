@@ -88,7 +88,6 @@ impl MacCore {
                 "请更新本机 Codex，再点击立即刷新。",
             ),
             Some(Failure::Timeout) => ("查询超时", "warning", "请检查网络后重试；保留最近成功值。"),
-            None if self.monitor.refreshing => ("刷新中", "muted", ""),
             None if self.monitor.stale(now, self.config.interval_secs) => {
                 ("数据过期", "warning", "最近成功值已过期，请刷新。")
             }

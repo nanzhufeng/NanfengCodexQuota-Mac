@@ -38,6 +38,19 @@ final class NativeQA {
             guard snapshot.status == "已连接" else { return }
             check("weekly_and_short_window", snapshot.percentLabel == "34%" && snapshot.shortLabel == "剩余 77%")
             capture("settings", view: view); capture("widget", view: app.widgetView)
+            let click = NSPoint(x: NSScreen.main!.visibleFrame.midX, y: NSScreen.main!.visibleFrame.midY)
+            app.showContextMenu(at: click)
+            if let menu = app.contextMenu.panel, let card = menu.contentView {
+                let rows = card.subviews.compactMap { $0 as? ContextRow }
+                check("context_menu_all_five_items", rows.map(\.title) == ["立即刷新", "打开主界面", "保持置顶", "隐藏悬浮窗", "退出"] && rows.allSatisfy { card.bounds.contains($0.frame) })
+                check("context_menu_upper_right_anchor", menu.frame.minX > click.x && menu.frame.minY > click.y)
+                let anchored = menu.frame
+                app.poll()
+                check("context_menu_position_stable", menu.frame == anchored)
+                capture("context-menu", view: card)
+                rows[1].performClick(nil)
+                check("context_menu_action_closes_panel", app.contextMenu.panel == nil && app.settingsWindow?.isVisible == true)
+            }
             view.aboutButton.performClick(nil)
             check("about_navigation", view.about && !view.githubButton.isHidden && view.refreshButton.isHidden)
             capture("about", view: view)
