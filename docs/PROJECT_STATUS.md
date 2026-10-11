@@ -38,7 +38,6 @@
 | 登录启动注册 | PASS | 2026-10-11 / 实际用户开关 / 新实例签名有效 | 真实注册成功，最终构建保留开启状态；实际下次登录尚未执行 |
 | Developer ID / 公证 | NOT RUN | 本次为本地 ad-hoc | 无正式发行身份使用 |
 | Intel 硬件 / 多屏 / 睡眠 / 长期运行 | NOT RUN | 不以编译或合成事件替代 | 待独立环境验收 |
-
 | GitHub CI 与附件 | PASS：8a2a921 CI；正式 v0.1.4，两个附件重新下载字节一致 | 2026-10-11 / GitHub | docs/qa/GITHUB_RELEASE.md |
 
 ## Verification Gaps
