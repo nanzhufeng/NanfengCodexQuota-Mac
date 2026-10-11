@@ -130,7 +130,9 @@ fn retina_export_has_transparent_corners_and_valid_premultiplied_alpha() {
     assert_eq!(&pixels[..4], &[0, 0, 0, 0]);
     assert!(
         pixels
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .all(|p| p[0] <= p[3] && p[1] <= p[3] && p[2] <= p[3])
     );
 }
