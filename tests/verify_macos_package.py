@@ -6,6 +6,7 @@ import json
 import plistlib
 import subprocess
 import tempfile
+import time
 root=Path(__file__).resolve().parent.parent
 app=root/'dist/南枫 Codex 额度.app'
 dmg=root/'dist/南枫Codex额度-Mac-v0.1.4-universal.dmg'
@@ -40,5 +41,11 @@ try:
     (root/'docs/qa/package-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False,indent=2))
 finally:
-    if attached: subprocess.run(['hdiutil','detach','-quiet',str(mount)],check=True)
+    if attached:
+        # macOS can briefly retain a just-read mount after the probe exits.
+        for attempt in range(3):
+            result=subprocess.run(['hdiutil','detach','-quiet',str(mount)])
+            if result.returncode==0: break
+            if attempt==2: result.check_returncode()
+            time.sleep(0.5)
     mount.rmdir()
