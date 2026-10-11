@@ -70,7 +70,9 @@ final class ContextMenuController: NSObject {
         let work = NSScreen.screens.first { $0.frame.contains(point) }?.visibleFrame ?? NSScreen.main!.visibleFrame
         let window = ContextPanel(contentRect: Self.frame(click: point, work: work), styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         window.title = "南枫 Codex 额度菜单"; window.isOpaque = false; window.backgroundColor = .clear
-        window.hasShadow = true; window.hidesOnDeactivate = false; window.isReleasedWhenClosed = false
+        // The glass supplies its own rounded surface. A second WindowServer
+        // shadow follows the rectangular panel and exposes a hard outer frame.
+        window.hasShadow = false; window.hidesOnDeactivate = false; window.isReleasedWhenClosed = false
         window.level = .popUpMenu; window.appearance = NSAppearance(named: .aqua)
         window.dismiss = { [weak self] in self?.close() }
         let card = ContextCard(frame: NSRect(origin: .zero, size: Self.size))
