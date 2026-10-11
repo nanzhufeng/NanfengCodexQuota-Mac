@@ -20,3 +20,7 @@
 [v0.1.6 Release](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/tag/v0.1.6) 为非草稿／非预发布；标签精确对应生产 f86f6c59907e4d526fb54b9639097c8a019aa07f。稳定 ASCII 文件名的 Universal DMG 与 SHA-256 两个附件均 uploaded；从远端重新下载两者，逐字节与冻结本地附件一致。
 
 [CI 38139475206](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/actions/runs/38139475206) 已 success，针对包含生产提交的 main 29b52bf；云端不拥有本机开发证书，其本地签名构建不代替本机开发签名证据。
+
+## 用户实际启动确认（2026-10-11 20:41 +08:00）
+
+用户确认现在可以。只读核验 Applications 现装 v0.1.6 使用开发证书，程序字节与冻结发布包一致，且从 Applications 路径运行。实际安装启动本项通过；`spctl` 当前仍 rejected，其结果保留为独立静态评估，不再据此称用户无法启动。详细失败与防复发记录见 [复盘](SIGNING_RETROSPECTIVE.md)。

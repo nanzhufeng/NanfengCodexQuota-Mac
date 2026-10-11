@@ -2,7 +2,7 @@
 
 ## Verified
 
-- Last verified: 2026-10-11 20:34 +08:00
+- Last verified: 2026-10-11 20:41 +08:00
 - Branch: macos-port
 - Code baseline: f86f6c5；v0.1.6 Apple Development 签名增量
 - Verification scope: COMMIT；生产源码 36 个文件与冻结包逐项一致；验收脚本、截图与报告随后归档，不改变应用。
@@ -10,7 +10,7 @@
 
 ## Current
 
-- v0.1.6 已按用户明确指令使用南枫 AI 的同一张 Apple Development 证书打包；叶证书 SHA-256 完全相同。34 Rust 通过／1 忽略、5 配置门禁、fmt／clippy、Universal 构建、原生 23 项及最终 DMG 真实只读查询通过。默认 Gatekeeper 仍 rejected，未覆盖 Applications、未代用户确认安全例外。详细证据见 [开发证书验签](qa/APPLE_DEVELOPMENT_SIGNING.md)。下方 v0.1.5 是此前交付记录。
+- v0.1.6 已按用户明确指令使用南枫 AI 的同一张 Apple Development 证书打包；叶证书 SHA-256 完全相同。34 Rust 通过／1 忽略、5 配置门禁、fmt／clippy、Universal 构建、原生 23 项及最终 DMG 真实只读查询通过。用户已确认可用；现装 v0.1.6 的版本、开发签名、程序字节与 Applications 运行路径均已核验。静态 `spctl` 仍 rejected，单独保留该结果，不再等同于实际打不开。Agent 未执行安装或安全例外。详细证据见 [开发证书验签](qa/APPLE_DEVELOPMENT_SIGNING.md)。下方 v0.1.5 是此前交付记录。
 
 - Mac 原生版本已实现原 Windows v0.1.4 的完整功能和设计；Rust 共享核心、AppKit 窗口与控件、Retina 原像素圆窗、原图标。
 - v0.1.5 Universal .app / DMG 已生成，恢复普通应用身份；原生隔离及真实只读链路通过。默认 Gatekeeper 评估仍拒绝，未完成用户下载版获准启动验收。
@@ -20,13 +20,13 @@
 
 ## In Progress
 
-- v0.1.6 同开发证书包已发布；两附件重新下载字节一致，标签对应生产 f86f6c5，CI 38139475206 成功。系统默认评估仍拒绝，实际安装获准启动未通过。
+- v0.1.6 同开发证书包已发布；两附件重新下载字节一致，标签对应生产 f86f6c5，CI 38139475206 成功。用户实际安装启动已确认通过；静态安全评估单独记录。详细复盘见 qa/SIGNING_RETROSPECTIVE.md。
 
 - v0.1.5 原生 23 项及精确 DMG 复核通过；0e01d76 CI 与 Release 附件校验通过。安装后的应用列表显示及首次安全确认需由用户完成，不能继续宣称下载启动已无问题。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
 
 ## Blocked
 
-- 免人工确认启动：本机无可用 Developer ID Application 身份，未完成苹果公证。系统安全例外需用户本人确认，不能自动绕过。
+- 无当前安装启动阻塞。未完成 Developer ID 公证及广泛设备免提示分发验证，保留为独立边界。
 
 ## Tests
 
@@ -43,7 +43,7 @@
 | Gatekeeper / 正式身份 | FAIL：默认评估 rejected；可用 Developer ID 为 0 | v0.1.5 / 本机 / 非用户批准状态 | 下载启动问题见 docs/qa/INSTALL_STARTUP.md |
 | Intel 硬件 / 多屏 / 睡眠 / 长期运行 | NOT RUN | 不以编译或合成事件替代 | 待独立环境验收 |
 | GitHub CI 与附件 | PASS：0e01d76 CI；v0.1.5 两个附件下载字节一致 | 2026-10-11 / GitHub | docs/qa/INSTALL_STARTUP.md |
-| 安装版应用列表与获准启动 | PENDING：用户更新安装并完成安全确认后现场核验 | 不能用普通应用元数据或本地测试代替 | 当前截图已证明 v0.1.4 的交付缺口 |
+| v0.1.6 安装启动 | PASS：用户确认可用，现装版本／签名／包字节及实际运行路径一致 | Applications；spctl 静态评估仍独立 rejected | qa/SIGNING_RETROSPECTIVE.md；系统应用列表视觉未另验 |
 
 ## Verification Gaps
 
@@ -61,7 +61,5 @@
 
 ## Next
 
-- 当前先交付 v0.1.6 同证书包；安装版仍为此前版本，实际获准启动、应用列表和真实登录启动需另验。以下 v0.1.5 步骤属于此前记录。
-
-1. 用户下载 v0.1.5，复制替换安装版并自行作首次安全决定，再核验实际应用列表与启动路径。
-2. 若要求默认门禁直接通过，准备 Developer ID 与公证身份；当前不能以本地 seal 或可执行文件存在代替。
+1. 后续签名与安装问题遵循 [复盘门禁](qa/SIGNING_RETROSPECTIVE.md)，先执行已授权的参考方案再下结论。
+2. 系统应用列表视觉、下次登录、多屏／睡眠及其他 Mac 分发体验仍需按实际需求独立验证。

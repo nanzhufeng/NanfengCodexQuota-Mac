@@ -35,3 +35,7 @@
 ## 2026-10-11：安装文件与获准启动分开验收
 
 下载的 v0.1.4 DMG 与安装到 Applications 的程序字节一致，但 spctl 对安装版明确返回 rejected；本机 Developer ID Application 可用身份为 0，无法完成免人工确认的签名及公证。前一轮将文件存在、codesign 封装通过当作成功安装启动的充分证据，结论过早。v0.1.5 移除隐藏代理身份，改为 regular AppKit 应用及 utilities 分类，保留菜单栏、圆窗和窗口关闭后继续运行的原行为。原生 QA 检查实际 NSRunningApplication activationPolicy；包门禁检查 LSUIElement 与类别。公开说明未公证限制和苹果的人工确认入口，最终用户安全决定不由自动化代点；不删除 quarantine，不关闭门禁，不重置全局应用索引。系统应用列表在用户替换安装后仍须现场确认，不能以元数据或构建成功替代该截图。
+
+## 2026-10-11：纠正参考签名未执行与证据过度推断
+
+用户要求照抄南枫 AI 的方案，实际直到 v0.1.6 才复用其 Apple Development 证书；用户确认成功，安装版版本／签名／程序字节／运行路径均只读核验一致。之前“照抄不能解决”和“南枫 AI 最初本机安装”的推断撤回，`spctl rejected` 不再等同于实际打不开。错误链与下次先执行、后结论的门禁见 [签名复盘](qa/SIGNING_RETROSPECTIVE.md)。
