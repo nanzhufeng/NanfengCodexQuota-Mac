@@ -11,7 +11,7 @@
 - 登录启动：旧进程 SecCodeCopyGuestWithAttributes=-67049，新实例 locate=0 / validity=0，用户原始开关真实注册成功；最终构建开关仍开启。未执行系统注销/重登。
 - 打包保护：目标在运行时构建被拒绝，已验证可执行文件字节未变；退出后采用新文件原子替换，不再原地破坏运行中 Mach-O。
 - 最终 DMG：挂载验签通过，包内 executable 与 dist bundle SHA-256 完全一致；真实只读接口已连接、周剩余 85%、五小时接口未提供。没有模型调用。
-- 签名：本地 ad-hoc，非 Developer ID，未 Apple 公证。Mac 独立公共仓库 main 已推送，Release 上传待最终 CI。
+- 签名：本地 ad-hoc，非 Developer ID，未 Apple 公证。Mac 独立公共仓库 main 已推送，8a2a921 云端检查成功，v0.1.4 正式 Release 已发布并重新下载验 SHA-256。
 
 ## 产物
 

@@ -18,7 +18,7 @@
 
 ## In Progress
 
-- 当前包原生 22 项及精确 DMG 复核通过；GitHub 8a2a921 云端检查运行中，通过后发布 v0.1.4。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
+- 当前包原生 22 项及精确 DMG 复核通过；GitHub 8a2a921 云端检查成功，v0.1.4 Release 与安装包/校验文件已发布，远端下载字节一致。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
 
 ## Blocked
 
@@ -39,21 +39,23 @@
 | Developer ID / 公证 | NOT RUN | 本次为本地 ad-hoc | 无正式发行身份使用 |
 | Intel 硬件 / 多屏 / 睡眠 / 长期运行 | NOT RUN | 不以编译或合成事件替代 | 待独立环境验收 |
 
+| GitHub CI 与附件 | PASS：8a2a921 CI；正式 v0.1.4，两个附件重新下载字节一致 | 2026-10-11 / GitHub | docs/qa/GITHUB_RELEASE.md |
+
 ## Verification Gaps
 
 - 下次系统真实登录后的自动启动、Intel 设备与 macOS 13 真机、多屏、完整睡眠和长期运行。
-- 未 Developer ID 签名、公证；Mac 独立公共仓库及 main 已创建，最终提交云端检查运行中。
+- 未 Developer ID 签名、公证；Mac 独立公共仓库 main 及 v0.1.4 Release 已发布；8a2a921 云端构建检查通过。
 
 ## Sync & Safety
 
 - Sync checked at: 2026-10-11 19:25 +08:00；归档验收前观察。
 - Docs: OK；本项目合同、README、状态与验收对应同一产物。
 - Git: 当前生产代码已本地 checkpoint；本轮边缘修复与验收文档已归档。
-- Remote: PUBLIC；origin 为 nanzhufeng/NanfengCodexQuota-Mac，main 已推送；windows-source 仅作来源。Release 正在准备。
+- Remote: PUBLIC；origin 为 nanzhufeng/NanfengCodexQuota-Mac，main 已推送；windows-source 仅作来源。v0.1.4 正式 Release 已发布；ad-hoc 签名状态明确披露。
 - Rollback: 8a2a921e2648e800baa3103c10c383720e586d8a；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
 - Secrets/config risk: NONE；定向源码扫描 0 个密钥命中；QA 隔离设置，不提交真实额度原始样本，不复制凭据、不调用模型。
 
 ## Next
 
 1. 用户在本机使用当前 .app / DMG；下一次正常登录验证自动启动。
-2. 完成 GitHub v0.1.4 Release 上传及远端附件校验；Developer ID / 公证仍为独立发行边界。
+2. 通过 GitHub v0.1.4 Release 下载；Developer ID / 公证仍为独立发行边界。
