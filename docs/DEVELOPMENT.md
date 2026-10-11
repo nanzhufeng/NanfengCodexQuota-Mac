@@ -19,7 +19,7 @@
 
 ## 发行
 
-`--local` 生成两架构通用本地包，以 ad-hoc 封装；这不是发行证书或公证完成。`--distribute` 必须使用完整环境命名空间：
+`--local` 生成两架构通用本地包，以 ad-hoc 封装；这不是发行证书或公证完成。`--development` 使用用户明确指定的 Apple Development 证书，要求 SIGN_IDENTITY 与 EXPECTED_TEAM_ID 两项完整，核验开发证书类型及 Team ID；不要求公证 profile，不自动选择证书。开发签名不能作为通过 Gatekeeper 的证据。`--distribute` 必须使用完整环境命名空间：
 
 - `NANFENG_CODEX_QUOTA_MAC_SIGN_IDENTITY`
 - `NANFENG_CODEX_QUOTA_MAC_EXPECTED_TEAM_ID`

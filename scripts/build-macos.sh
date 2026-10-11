@@ -17,8 +17,12 @@ PY
 }
 assert_app_stopped
 mode=${1:---local}
-if [[ "$mode" != "--local" && "$mode" != "--distribute" ]]; then
-  echo '用法：build-macos.sh [--local|--distribute]' >&2; exit 2
+if [[ "$mode" != "--local" && "$mode" != "--development" && "$mode" != "--distribute" ]]; then
+  echo '用法：build-macos.sh [--local|--development|--distribute]' >&2; exit 2
+fi
+if [[ "$mode" != --local ]]; then
+  signing_values=$(python3 scripts/macos-signing-config.py "$mode")
+  eval "$signing_values"
 fi
 mkdir -p dist .release
 # No artwork edits: each pixel size is sampled directly from the original transparent master.
@@ -51,13 +55,16 @@ cp LICENSE NOTICE "$app/Contents/Resources/"
 if [[ "$mode" == --local ]]; then
   codesign --force --sign - "$app"
   echo '签名边界：本地 ad-hoc，未进行 Developer ID 签名或 Apple 公证。'
+elif [[ "$mode" == --development ]]; then
+  codesign --force --sign "$quota_sign_identity" "$app"
+  codesign --display --verbose=4 "$app" 2> .release/signature.txt
+  if ! /usr/bin/grep -Fxq "TeamIdentifier=$quota_sign_team" .release/signature.txt; then echo '签名 Team ID 不匹配' >&2; exit 1; fi
+  if ! /usr/bin/grep -Fq 'Authority=Apple Development:' .release/signature.txt; then echo '缺少已指定的 Apple Development 身份' >&2; exit 1; fi
+  echo '签名边界：Apple Development 开发证书，未进行 Developer ID 签名或 Apple 公证。'
 else
-  # Complete environment namespace takes precedence. Config stays outside the repository.
-  signing_values=$(python3 scripts/macos-signing-config.py)
-  eval "$signing_values"
   codesign --force --options runtime --timestamp --sign "$quota_sign_identity" "$app"
   codesign --display --verbose=4 "$app" 2> .release/signature.txt
-  if ! /usr/bin/grep -Fq "TeamIdentifier=$quota_sign_team" .release/signature.txt; then echo '签名 Team ID 不匹配' >&2; exit 1; fi
+  if ! /usr/bin/grep -Fxq "TeamIdentifier=$quota_sign_team" .release/signature.txt; then echo '签名 Team ID 不匹配' >&2; exit 1; fi
   if ! /usr/bin/grep -Fq 'Authority=Developer ID Application:' .release/signature.txt; then echo '缺少 Developer ID 发行身份' >&2; exit 1; fi
 fi
 codesign --verify --deep --strict "$app"

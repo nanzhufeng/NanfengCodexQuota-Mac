@@ -22,6 +22,8 @@ try:
     def digest(path): return hashlib.sha256(path.read_bytes()).hexdigest()
     assert digest(app/binary)==digest(mounted/binary), 'DMG executable differs from frozen bundle'
     subprocess.run(['codesign','--verify','--deep','--strict',str(mounted)],check=True)
+    signature_result=subprocess.run(['codesign','--display','--verbose=4',str(mounted)],text=True,capture_output=True,check=True)
+    signature='; '.join(line for line in signature_result.stderr.splitlines() if line.startswith(('Authority=', 'TeamIdentifier=', 'Signature=')))
     with (mounted/'Contents/Info.plist').open('rb') as stream: info=plistlib.load(stream)
     assert info['CFBundleIdentifier']=='studio.nanzhufeng.codexquota.mac'
     assert info.get('LSUIElement') is not True, 'Bundle is incorrectly hidden as an agent app'
@@ -40,7 +42,7 @@ try:
     baseline=json.loads((root/'.release/source-manifest.json').read_text())
     assert live['commit']==baseline['commit'] and live['dirty'] is False
     assert all(digest(root/p)==expected for p,expected in baseline['files'].items()), 'Production source changed after freezing'
-    report={'commit':live['commit'],'version':info['CFBundleShortVersionString'],'bundle_id':info['CFBundleIdentifier'],'architectures':arches,'minimum_macos':info['LSMinimumSystemVersion'],'dmg_bytes':dmg.stat().st_size,'dmg_sha256':digest(dmg),'executable_sha256':digest(app/binary),'live_probe':str(probe),'real_service':live,'checks':checks,'signature':'ad-hoc; not Developer ID signed or notarized'}
+    report={'commit':live['commit'],'version':info['CFBundleShortVersionString'],'bundle_id':info['CFBundleIdentifier'],'architectures':arches,'minimum_macos':info['LSMinimumSystemVersion'],'dmg_bytes':dmg.stat().st_size,'dmg_sha256':digest(dmg),'executable_sha256':digest(app/binary),'live_probe':str(probe),'real_service':live,'checks':checks,'signature':signature}
     (root/'docs/qa/package-verification.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(report,ensure_ascii=False,indent=2))
 finally:

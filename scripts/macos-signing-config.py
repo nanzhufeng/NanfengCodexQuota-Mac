@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 import shlex
 import sys
+mode = sys.argv[1] if len(sys.argv) > 1 else '--distribute'
+if mode not in ('--development', '--distribute'):
+    sys.exit('不支持的签名模式。')
 keys = {
     'quota_sign_identity': 'NANFENG_CODEX_QUOTA_MAC_SIGN_IDENTITY',
     'quota_sign_team': 'NANFENG_CODEX_QUOTA_MAC_EXPECTED_TEAM_ID',
@@ -19,7 +22,9 @@ if not any(values.values()):
             values = dict(zip(keys, [data.get(k, '') for k in ('identity', 'expectedTeamId', 'notaryProfile')]))
         except (OSError, ValueError):
             sys.exit('签名配置损坏；未读取或更改钥匙串。')
-if not all(isinstance(v, str) and v.strip() for v in values.values()):
-    sys.exit('正式发行需要完整的 App 专属签名配置；未选择替代身份。')
+required = ('quota_sign_identity', 'quota_sign_team') if mode == '--development' else tuple(keys)
+if not all(isinstance(values[k], str) and values[k].strip() for k in required):
+    sys.exit('需要完整的 App 专属签名配置；未选择替代身份。')
 for key, value in values.items():
-    print(f'{key}={shlex.quote(value)}')
+    if key in required:
+        print(f'{key}={shlex.quote(value)}')
