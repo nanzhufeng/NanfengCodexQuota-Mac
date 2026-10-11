@@ -19,7 +19,11 @@ const HIGH_SIZE: usize = OUTPUT_SIZE * SCALE;
 const CONTENT_PADDING: f32 = 8.0;
 const CENTER_X: f32 = 58.0 + CONTENT_PADDING;
 const CENTER_Y: f32 = 56.0 + CONTENT_PADDING;
-const RING_RADIUS: f32 = 51.0;
+// Widen only outward: the original inner edge stays at 47.4 points.
+const RING_INNER_EDGE: f32 = 47.4;
+const RING_OUTER_EDGE: f32 = 57.6;
+const RING_RADIUS: f32 = (RING_INNER_EDGE + RING_OUTER_EDGE) / 2.0;
+const RING_HALF_WIDTH: f32 = (RING_OUTER_EDGE - RING_INNER_EDGE) / 2.0;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WeeklyQuotaRenderModel {
@@ -86,7 +90,7 @@ fn render_impl_at_scale(
                 &mut canvas,
                 CENTER_X,
                 CENTER_Y - RING_RADIUS,
-                3.6,
+                RING_HALF_WIDTH,
                 available_color(0.0),
                 1.0,
             );
@@ -239,7 +243,7 @@ fn draw_ring(canvas: &mut Canvas, mut paint: impl FnMut(f32) -> Option<([u8; 3],
             let dx = px - CENTER_X;
             let dy = py - CENTER_Y;
             let signed = (dx.hypot(dy) - RING_RADIUS).abs();
-            let coverage = (3.6 - signed).clamp(0.0, 1.0);
+            let coverage = (RING_HALF_WIDTH - signed).clamp(0.0, 1.0);
             if coverage <= 0.0 {
                 continue;
             }
@@ -256,8 +260,9 @@ fn draw_inner_disc(canvas: &mut Canvas) {
             let dx = px - CENTER_X;
             let dy = py - CENTER_Y;
             let distance = dx.hypot(dy);
-            // Extend only the opaque center beneath the original thin ring.
-            let coverage = (54.6 - distance).clamp(0.0, 1.0);
+            // Overlap the ring's opaque inner edge to fill the seam, but keep
+            // the dark disc away from its outer antialiasing and soft shadow.
+            let coverage = (RING_INNER_EDGE + 2.0 - distance).clamp(0.0, 1.0);
             if coverage <= 0.0 {
                 return;
             }

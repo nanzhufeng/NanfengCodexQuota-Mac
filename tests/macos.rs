@@ -136,7 +136,7 @@ fn retina_export_has_transparent_corners_and_valid_premultiplied_alpha() {
 }
 
 #[test]
-fn widget_inner_gap_is_filled_without_changing_its_thin_ring_geometry() {
+fn widget_outward_ring_is_colored_without_reopening_the_inner_gap() {
     let pixels = render_weekly_quota_base_at_scale(&WeeklyQuotaRenderModel::preview(87), 2);
     for (x, y) in [(66, 17), (113, 64), (66, 111), (19, 64)] {
         assert_eq!(
@@ -145,4 +145,10 @@ fn widget_inner_gap_is_filled_without_changing_its_thin_ring_geometry() {
             "gap at {x},{y}"
         );
     }
+    // The newly widened bottom band is bright orange, rather than dark backing.
+    let outer = &pixels[((120 * 2) * 264 + 66 * 2) * 4..][..4];
+    assert!(outer[2] > 230 && outer[1] > 80 && outer[0] < 100);
+    assert_eq!(outer[3], 255);
+    // Beyond the ring there is only translucent shadow, not an opaque dark rim.
+    assert!(pixels[((122 * 2) * 264 + 66 * 2) * 4 + 3] < 128);
 }
