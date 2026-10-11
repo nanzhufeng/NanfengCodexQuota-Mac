@@ -2,9 +2,9 @@
 
 ## Verified
 
-- Last verified: 2026-10-11 18:34 +08:00
+- Last verified: 2026-10-11 18:55 +08:00
 - Branch: macos-port
-- Code baseline: 39094a7d756d6f20f3b163def3141eadcc5804a0
+- Code baseline: 227deee26fe77aa34d14250146b4b3a73c39cadb
 - Verification scope: COMMIT；生产源码 36 个文件与冻结包逐项一致；验收脚本、截图与报告随后归档，不改变应用。
 - Status: Active
 
@@ -13,12 +13,12 @@
 - Mac 原生版本已实现原 Windows v0.1.4 的完整功能和设计；Rust 共享核心、AppKit 窗口与控件、Retina 原像素圆窗、原图标。
 - Universal .app / DMG 已生成，本机直接启动显示真实额度；最终 DMG 内应用已验签并跑通只读真实链路。
 - 两页 UI、刷新间隔、置顶、隐藏找回、位置保存、单实例和失败恢复通过隔离原生行为测试；菜单五项完整，右上锚点与位置稳定。
-- 圆窗保留原几何与字重，只调整配色、亮度并填实环内缝隙。菜单采用适度原生玻璃及紧凑密度，没有自绘黑色硬描边。
+- 圆窗保留原几何与字重，只调整配色、亮度并填实环内缝隙。菜单采用适度原生玻璃及紧凑密度，已移除多余的窗口级矩形硬边，保留沿玻璃圆角自然衰减的阴影。
 - 登录启动拒绝问题已修复：旧实例身份失效，新实例校验及真实注册通过。构建门禁阻止替换运行中的精确应用。
 
 ## In Progress
 
-- 无进行中的实现工作；用户要求的圆窗配色、填实、紧凑玻璃菜单及静默刷新已完成。
+- 本轮边缘与阴影修复完成，最终原生 22 项及精确 DMG 复核通过。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
 
 ## Blocked
 
@@ -33,7 +33,7 @@
 | 两架构构建 | PASS | 2026-10-11 / arm64 + x86_64 交叉构建 | scripts/build-macos.sh --local |
 | 隔离原生 UI | PASS：22 / 22 | 2026-10-11 / 最终 .app / fixture | scripts/qa-macos.py |
 | 视觉对照 | PASS：两页、最小布局、圆窗、失败及缺失状态 | 2026-10-11 / 1064×711、900×640 pt | 本地联系表与 docs/images/mac-*.png |
-| 精确包与真实服务 | PASS：已连接，最终包查询周剩余 86% | 2026-10-11 / 最终 DMG 挂载应用 | tests/verify_macos_package.py；docs/qa/MAC_ACCEPTANCE.md |
+| 精确包与真实服务 | PASS：已连接，最终包查询周剩余 85% | 2026-10-11 / 最终 DMG 挂载应用 | tests/verify_macos_package.py；docs/qa/MAC_ACCEPTANCE.md |
 | 直接本机启动与菜单 | PASS | 2026-10-11 / dist 应用 / CUA | 菜单五档、取消和两页导航、关于提交 |
 | 登录启动注册 | PASS | 2026-10-11 / 实际用户开关 / 新实例签名有效 | 真实注册成功，最终构建保留开启状态；实际下次登录尚未执行 |
 | Developer ID / 公证 | NOT RUN | 本次为本地 ad-hoc | 无正式发行身份使用 |
@@ -46,11 +46,11 @@
 
 ## Sync & Safety
 
-- Sync checked at: 2026-10-11 18:34 +08:00；归档验收前观察。
+- Sync checked at: 2026-10-11 18:55 +08:00；归档验收前观察。
 - Docs: OK；本项目合同、README、状态与验收对应同一产物。
-- Git: 当前生产代码已本地 checkpoint；验收文档与截图正在归档。
+- Git: 当前生产代码已本地 checkpoint；本轮边缘修复与验收文档已归档。
 - Remote: LOCAL ONLY；windows-source 为来源 remote，Mac 分支无远端发布。
-- Rollback: 39094a7d756d6f20f3b163def3141eadcc5804a0；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
+- Rollback: 227deee26fe77aa34d14250146b4b3a73c39cadb；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
 - Secrets/config risk: NONE；定向源码扫描 0 个密钥命中；QA 隔离设置，不提交真实额度原始样本，不复制凭据、不调用模型。
 
 ## Next
