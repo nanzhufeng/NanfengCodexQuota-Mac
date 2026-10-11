@@ -31,6 +31,12 @@ impl Default for Config {
 }
 impl Config {
     pub fn path() -> Result<PathBuf> {
+        #[cfg(target_os = "macos")]
+        return Ok(
+            PathBuf::from(std::env::var_os("HOME").context("缺少用户主目录")?)
+                .join("Library/Application Support/NanfengCodexQuota/settings.toml"),
+        );
+        #[cfg(not(target_os = "macos"))]
         Ok(
             PathBuf::from(std::env::var_os("LOCALAPPDATA").context("缺少 LOCALAPPDATA")?)
                 .join("NanfengCodexQuota/settings.toml"),
@@ -85,6 +91,13 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn mac_settings_use_application_support_without_windows_environment() {
+        let expected = PathBuf::from(std::env::var_os("HOME").unwrap())
+            .join("Library/Application Support/NanfengCodexQuota/settings.toml");
+        assert_eq!(Config::path().unwrap(), expected);
+    }
     #[test]
     fn corrupt_config_is_never_overwritten() {
         let dir = tempfile::tempdir().unwrap();

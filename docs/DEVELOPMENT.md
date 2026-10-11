@@ -1,29 +1,32 @@
-# 开发与发行
+# Mac 开发与发行
 
-| 模块 | 职责 |
-|---|---|
-| discovery / codex / provider | 定位 CLI、执行只读 RPC、解析并分类失败；不复制登录凭据 |
-| monitor | 唯一额度快照、过期与错误展示口径 |
-| worker | 单请求在途、刷新退避、取消和子进程回收 |
-| config | 原子设置持久化，损坏文件保留原样 |
-| desktop / weekly_quota_render | 原生窗口、托盘、系统消息、设置与圆窗绘制 |
-| desktop/settings_view | 原生设置控件与仪表绘制；常规、关于两页；保留键盘及辅助技术语义 |
-| packaging / build-release | 安装、卸载、签名身份核验和最终产物 |
+| 所有者 | 职责 / 消费者 |
+| --- | --- |
+| discovery / codex / provider | 发现 Codex.app、ChatGPT 内置 CLI、PATH、Homebrew；只读 RPC、缺失/认证/网络/协议/超时分类 |
+| monitor / limits | 唯一额度事实、缺失不变零、失败保留、过期；所有页面共用 |
+| worker | 单请求在途、60 秒默认刷新、30–600 秒设置、失败退避、退出取消与精确子进程回收 |
+| config / mac_core | Application Support 原子设置；损坏或新版本文件阻止覆盖；C ABI 主线程唯一句柄 |
+| weekly_quota_render | 原 Windows 圆窗的同一像素算法；1× / Retina 2× BGRA 输出，不重画设计 |
+| macos/Core.swift / Controls.swift / SettingsView.swift / WidgetView.swift | C ABI 桥、共享控件、两页仪表和悬浮窗 |
+| macos/AppDelegate.swift / QA.swift | Mac 生命周期、菜单栏、SMAppService、flock、位置与隔离 QA |
+| scripts/build-macos.sh | 两架构静态链接、原图导出 icns、.app / DMG、签名与公证边界 |
 
-核心回归包含窗口缺失、分数百分比、失败保留与恢复、透明通道缩放、损坏配置、取消查询和子进程回收。真实服务测试默认忽略，只有获准的已登录本地环境单独执行。GUI 脚本只用于本地桌面。
+`mac_core` 的 C ABI 仅允许主线程串行调用。其 CString 由 quota_string_free 释放，句柄退出时只释放一次；Rust Worker 内部线程负责 I/O，不阻塞 UI。Mac UI 与原图同内容区对比，Mac 系统字形及标准窗口框是平台适配。
 
-设置窗口依赖清单中的 Common Controls v6；自绘使用 GDI+，原生控件保持即时设置通知。`qa-desktop.py` 验证两页导航及已删除入口、置顶、间隔、启动、单实例、退出及位置恢复。窗口布局单测覆盖最小、默认和宽屏尺寸；实际 DPI 和多屏验收仍需独立完成。
+核心自动测试覆盖解析、缺失窗口、分数百分比、失败保留与恢复、过期、配置保真、Retina alpha，以及 Mac 退出时取消并回收精确 CLI 子进程。真实服务测试保持默认忽略；本轮独立只读验证有单独记录。
 
-## 签名
+`qa-macos.py` 运行精确 .app 内可执行文件，设置与 CLI 都在每次唯一的临时目录。实际 NSButton 动作、NSWindow 导航和生命周期验证后退出；不改正式设置，不创建登录项。图像是当前原生 View 渲染；接触表只用于 QA，不冒充多个独立页面。原 Windows 截图保存在 `docs/images/windows-*.png`。
 
-先读取完整环境命名空间 `NANFENG_CODEX_QUOTA_PFX_PATH`、`NANFENG_CODEX_QUOTA_PFX_PASSWORD`、`NANFENG_CODEX_QUOTA_SIGN_EXPECTED_SUBJECT`、`NANFENG_CODEX_QUOTA_TIMESTAMP_URL`。只配置部分即停止；没有任何环境字段时，才读取用户级 `.config/nanfeng-signing/NanfengCodexQuota-Windows.json` 的 pfxPath、pfxPassword、expectedSubject、timestampUrl。
+## 发行
 
-凭据和 PFX 必须在仓库外。发行证书须有私钥、符合期望主体、不是自签身份；EXE 与 Setup 均须 Authenticode Valid 且发行主体匹配。没有凭据时默认失败，只有明确接受本次未签名交付后使用 `-AllowUnsigned`，并在 README/Release 说明真实签名状态。
+`--local` 生成两架构通用本地包，以 ad-hoc 封装；这不是发行证书或公证完成。`--distribute` 必须使用完整环境命名空间：
 
-## 安装与验收
+- `NANFENG_CODEX_QUOTA_MAC_SIGN_IDENTITY`
+- `NANFENG_CODEX_QUOTA_MAC_EXPECTED_TEAM_ID`
+- `NANFENG_CODEX_QUOTA_MAC_NOTARY_PROFILE`
 
-单个 x64 Setup EXE、当前用户安装、独立应用标识。安装检查运行中的应用，不强杀；升级保留已有启动选择；卸载仅删除指向本次安装目录的具名启动项，保留设置与 Codex 登录。
+全部未配置时才读取用户级仓库外 `.config/nanfeng-signing/NanfengCodexQuota-Mac.json` 的 identity、expectedTeamId、notaryProfile。任意部分缺失即停止，不能自动选择替代身份。脚本不导出私钥、不改访问控制、不提示或记录口令。Developer ID 证书与 Team ID 都须匹配，然后验证签名、提交公证并 staple / validate DMG。
 
-发行前验证精确安装包的安装、已安装 EXE 字节、真实额度、窗口响应、关于中的构建提交、保留设置的覆盖安装和卸载。合成 Windows 消息不能替代物理多屏、真实 DPI、完整睡眠及长期运行证据。
+正式安装按用户操作将应用复制至 Applications。应用不自动注册登录启动；SMAppService.mainApp 在开关触发时执行，失败回滚展示，待批准时打开系统设置。当前系统授权与设置文件值有差异时，以系统状态为准。
 
-README 预览只放当前版本真实页面；Release 只放安装包。main、标签、构建提交与远端附件需一致。上传失败保留同一草稿，检查远端资产再重试，不覆盖已发布版本。
+最低系统 macOS 13；本机为 Apple Silicon。Intel 已交叉编译并嵌入 universal，不代表 Intel 硬件或 macOS 13 真机验证。多屏、系统睡眠、长时间运行和真实登录启动仍独立列为验证缺口。

@@ -2,3 +2,7 @@
 /dist
 /.release
 *.tmp
+/docs/qa/*.log
+/docs/qa/*.json
+/docs/qa/*location.txt
+/docs/qa/*.jpg

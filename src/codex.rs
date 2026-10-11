@@ -289,7 +289,7 @@ fn command_for_codex(executable: &Path, args: &[&str]) -> Command {
         .extension()
         .and_then(|value| value.to_str())
         .unwrap_or_default();
-    let mut command =
+    let command =
         if cfg!(windows) && matches!(extension.to_ascii_lowercase().as_str(), "cmd" | "bat") {
             let mut command = Command::new("cmd.exe");
             command.args(["/D", "/C"]).arg(executable).args(args);
@@ -314,10 +314,12 @@ fn command_for_codex(executable: &Path, args: &[&str]) -> Command {
             command
         };
     #[cfg(windows)]
-    {
+    let command = {
         use std::os::windows::process::CommandExt;
+        let mut command = command;
         command.creation_flags(0x0800_0000);
-    }
+        command
+    };
     command
 }
 

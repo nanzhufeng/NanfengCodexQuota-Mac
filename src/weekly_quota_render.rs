@@ -58,7 +58,19 @@ pub fn render_weekly_quota_base(model: &WeeklyQuotaRenderModel) -> Vec<u8> {
     render_impl(model, false)
 }
 
+/// Retina host export; retains exactly the same logical artwork and alpha.
+pub fn render_weekly_quota_base_at_scale(model: &WeeklyQuotaRenderModel, scale: usize) -> Vec<u8> {
+    render_impl_at_scale(model, false, if scale >= 2 { 2 } else { 1 })
+}
+
 fn render_impl(model: &WeeklyQuotaRenderModel, labels: bool) -> Vec<u8> {
+    render_impl_at_scale(model, labels, 1)
+}
+fn render_impl_at_scale(
+    model: &WeeklyQuotaRenderModel,
+    labels: bool,
+    output_scale: usize,
+) -> Vec<u8> {
     let mut canvas = Canvas::new();
 
     draw_shadow(&mut canvas);
@@ -88,7 +100,7 @@ fn render_impl(model: &WeeklyQuotaRenderModel, labels: bool) -> Vec<u8> {
         draw_labels(&mut canvas, model);
     }
 
-    canvas.downsample_bgra()
+    canvas.downsample_bgra(output_scale)
 }
 
 struct Canvas {
@@ -125,22 +137,24 @@ impl Canvas {
         destination[3] = source[3] + destination[3] * keep;
     }
 
-    fn downsample_bgra(self) -> Vec<u8> {
-        let mut output = vec![0; OUTPUT_SIZE * OUTPUT_SIZE * 4];
-        for y in 0..OUTPUT_SIZE {
-            for x in 0..OUTPUT_SIZE {
+    fn downsample_bgra(self, output_scale: usize) -> Vec<u8> {
+        let side = OUTPUT_SIZE * output_scale;
+        let samples = SCALE / output_scale;
+        let mut output = vec![0; side * side * 4];
+        for y in 0..side {
+            for x in 0..side {
                 let mut sum = [0.0; 4];
-                for sample_y in 0..SCALE {
-                    for sample_x in 0..SCALE {
-                        let source =
-                            self.pixels[(y * SCALE + sample_y) * HIGH_SIZE + x * SCALE + sample_x];
+                for sample_y in 0..samples {
+                    for sample_x in 0..samples {
+                        let source = self.pixels
+                            [(y * samples + sample_y) * HIGH_SIZE + x * samples + sample_x];
                         for channel in 0..4 {
                             sum[channel] += source[channel];
                         }
                     }
                 }
-                let divisor = (SCALE * SCALE) as f32;
-                let offset = (y * OUTPUT_SIZE + x) * 4;
+                let divisor = (samples * samples) as f32;
+                let offset = (y * side + x) * 4;
                 // UpdateLayeredWindow expects premultiplied BGRA.
                 output[offset] = to_byte(sum[2] / divisor);
                 output[offset + 1] = to_byte(sum[1] / divisor);

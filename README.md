@@ -1,39 +1,42 @@
-# 南枫 Codex 额度 · Windows
+# 南枫 Codex 额度 · Mac
 
-独立运行的只读额度悬浮窗，复用本机 Codex 登录，无需保持 Codex 主窗口打开，不创建对话或调用模型。
+macOS 原生只读额度悬浮窗，复用本机 Codex 登录，无需保持 Codex 主窗口打开，不创建对话、不调用模型。
 
-[下载 Windows 安装包](https://github.com/nanzhufeng/NanfengCodexQuota-Windows/releases/latest)
+从 [Windows v0.1.4](https://github.com/nanzhufeng/NanfengCodexQuota-Windows) 完整移植原功能与设计，复用 Rust 额度核心及圆窗绘制，使用 AppKit 原生窗口和控件。
 
-![额度状态与设置](docs/images/settings.png)
-![关于](docs/images/about.png)
-
-预览为 v0.1.4 在 Windows 上的真实运行界面客户端区域。
-
-- 显示周剩余额度；接口提供五小时窗口时，在设置中同步列出。
-- 连接失败保留最近成功值，并明确显示异常或过期状态。
-- 默认每 60 秒刷新，支持手动刷新、失败退避和查询取消。
-- 可拖动、保存位置、置顶、隐藏找回；支持单实例及可选开机启动。
-- 白色仪表式中文设置、独立应用图标；关于页显示实际构建 Git Commit。
+- 周剩余额度、重置时间、最近成功；接口提供五小时窗口时同步显示。
+- 默认每 60 秒刷新，支持手动刷新、失败退避、过期标记、查询取消；失败保留最近成功值。
+- 拖动并保存位置、置顶、隐藏找回、屏外恢复、单实例唤回、菜单栏和可选登录启动。
+- 常规 / 关于两页保留白底绿橙仪表设计，原图标、真实构建 Git Commit 和本地修改标记。
 
 ## 安装与使用
 
-支持 Windows 10/11 x64。先安装并登录 Codex，再运行 Release 中的 Setup EXE。首次安装不自动启用开机启动；已有启动设置在升级时保留。
+支持 macOS 13+，Apple Silicon / Intel 通用二进制。打开 `dist/南枫Codex额度-Mac-v0.1.4-universal.dmg`，将“南枫 Codex 额度.app”拖到 Applications。先在 Codex 中登录，再运行应用。
 
-右键圆窗或托盘图标打开带图标的菜单，选择“打开主界面”；双击托盘图标也可直接打开。卸载保留本软件设置，不修改 Codex 登录数据。
+点击或双击菜单栏图标打开主界面；右键菜单栏或圆窗可刷新、打开主界面、切换置顶、隐藏 / 显示与退出。双击圆窗也可打开主界面。关闭设置窗口后额度监控继续运行。
 
-**当前安装包未进行 Windows 发行签名。** 实际多屏切换、系统缩放、睡眠唤醒及长期连续运行仍需扩大验证。
+登录启动默认关闭，开关显示真实系统状态；需要系统批准时会打开“系统设置 → 通用 → 登录项”。设置保存在 `~/Library/Application Support/NanfengCodexQuota/settings.toml`。删除应用不会删除设置或 Codex 登录。
+
+本地包使用 ad-hoc 签名，尚未 Developer ID 签名或 Apple 公证。真实系统登录授权、多屏、睡眠唤醒、长期运行和 Intel 硬件尚需另行验收。
+
+## 界面预览
+
+Mac v0.1.4 原生运行页面，1064×711 pt 内容区；额度来自隔离 fixture，展示完整两窗口状态，截图不是用户真实账户数据。
+
+![常规](docs/images/mac-settings.png)
+![关于](docs/images/mac-about.png)
 
 ## 开发
 
-Rust 1.95.0 + Windows MSVC。源码可独立构建，不需要父项目或 WinUI、.NET、WebView2 附带运行库。
+Xcode Command Line Tools + Rust stable；无需 WebView、Electron 或 Python 运行时。Python 仅用于开发 QA 和正式发行配置校验。
 
-```powershell
-cargo check --locked
+```sh
+rustup target add aarch64-apple-darwin x86_64-apple-darwin
+cargo fmt --all --check
+cargo clippy --all-targets --locked -- -D warnings
 cargo test --all-targets --locked
-cargo build --release --locked
-./scripts/build-release.ps1 -AllowUnsigned
+./scripts/build-macos.sh --local
+python3 scripts/qa-macos.py
 ```
 
-安装包使用 Inno Setup 7。签名配置和验收边界见 [开发说明](docs/DEVELOPMENT.md)。
-
-基于 Apache-2.0 协议，第三方来源与署名见 [NOTICE](NOTICE) 和 [LICENSE](LICENSE)。
+架构、签名配置和验证边界见 [开发说明](docs/DEVELOPMENT.md)，完整功能对应见 [移植合同](docs/MAC_PORT.md)，本轮结果见 [项目状态](docs/PROJECT_STATUS.md)。基于 Apache-2.0；来源署名见 [NOTICE](NOTICE)。

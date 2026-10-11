@@ -1,6 +1,10 @@
-Nanfeng Codex Quota for Windows
+Nanfeng Codex Quota for macOS
 Copyright 2026 席瑞
 
 This application includes adapted usage-limit and rendering code from Codex Minibar:
 https://github.com/vertopolkaLF/codex-minibar
+Licensed under the Apache License, Version 2.0.
+
+The macOS port preserves and adapts the Windows implementation and original artwork:
+https://github.com/nanzhufeng/NanfengCodexQuota-Windows
 Licensed under the Apache License, Version 2.0.

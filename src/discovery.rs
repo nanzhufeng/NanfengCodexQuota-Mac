@@ -69,6 +69,22 @@ pub fn discover(explicit: Option<&Path>) -> Vec<CodexCandidate> {
 
 fn current_desktop_locations() -> Vec<PathBuf> {
     let mut paths = Vec::new();
+    #[cfg(target_os = "macos")]
+    {
+        if let Some(home) = env::var_os("HOME") {
+            paths.push(PathBuf::from(home).join("Applications/Codex.app/Contents/Resources/codex"));
+        }
+        paths.push(PathBuf::from(
+            "/Applications/Codex.app/Contents/Resources/codex",
+        ));
+        paths.push(PathBuf::from(
+            "/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex",
+        ));
+        // A separately named Codex app can be supplied by the native host, without reading credentials.
+        if let Some(app) = env::var_os("NANFENG_CODEX_APP_PATH") {
+            paths.push(PathBuf::from(app).join("Contents/Resources/codex"));
+        }
+    }
     #[cfg(windows)]
     if let Some(local) = env::var_os("LOCALAPPDATA") {
         let root = PathBuf::from(local).join("OpenAI/Codex");
@@ -269,7 +285,9 @@ fn push_candidate(
         .canonicalize()
         .unwrap_or_else(|_| path.to_path_buf())
         .to_string_lossy()
-        .to_lowercase();
+        .into_owned();
+    #[cfg(windows)]
+    let normalized = normalized.to_lowercase();
     if seen.insert(normalized) {
         candidates.push(CodexCandidate {
             path: path.to_path_buf(),
@@ -290,6 +308,11 @@ fn executable_names() -> &'static [&'static str] {
 
 fn common_locations() -> Vec<PathBuf> {
     let mut paths = Vec::new();
+    #[cfg(target_os = "macos")]
+    paths.extend([
+        PathBuf::from("/opt/homebrew/bin/codex"),
+        PathBuf::from("/usr/local/bin/codex"),
+    ]);
     #[cfg(windows)]
     {
         if let Some(local) = env::var_os("LOCALAPPDATA") {

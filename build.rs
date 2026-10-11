@@ -3,6 +3,8 @@ fn main() {
     println!("cargo:rerun-if-changed=.git/HEAD");
     println!("cargo:rerun-if-changed=.git/index");
     println!("cargo:rerun-if-changed=src");
+    println!("cargo:rerun-if-changed=macos");
+    println!("cargo:rerun-if-changed=scripts");
     println!("cargo:rerun-if-changed=assets/app-icon.ico");
     let commit = Command::new("git")
         .current_dir(env!("CARGO_MANIFEST_DIR"))
@@ -16,19 +18,21 @@ fn main() {
     let dirty = Command::new("git")
         .current_dir(env!("CARGO_MANIFEST_DIR"))
         .args([
-            "diff",
-            "--quiet",
-            "HEAD",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
             "--",
             "src",
+            "macos",
+            "scripts",
             "assets",
             "Cargo.toml",
             "Cargo.lock",
             "build.rs",
         ])
-        .status()
+        .output()
         .ok()
-        .is_some_and(|s| !s.success());
+        .is_some_and(|o| !o.status.success() || !o.stdout.is_empty());
     println!("cargo:rustc-env=BUILD_DIRTY={dirty}");
     #[cfg(windows)]
     {
