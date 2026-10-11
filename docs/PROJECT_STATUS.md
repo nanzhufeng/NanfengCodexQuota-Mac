@@ -2,9 +2,9 @@
 
 ## Verified
 
-- Last verified: 2026-10-11 19:00 +08:00
+- Last verified: 2026-10-11 19:25 +08:00
 - Branch: macos-port
-- Code baseline: 5fb9ebf72882afdd9cc9b1f7774e4699d096bfa8
+- Code baseline: 8a2a921e2648e800baa3103c10c383720e586d8a
 - Verification scope: COMMIT；生产源码 36 个文件与冻结包逐项一致；验收脚本、截图与报告随后归档，不改变应用。
 - Status: Active
 
@@ -18,7 +18,7 @@
 
 ## In Progress
 
-- 本轮外环拓宽与底部暗边修复完成，34 项测试、原生 22 项及精确 DMG 复核通过。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
+- 当前包原生 22 项及精确 DMG 复核通过；GitHub 8a2a921 云端检查运行中，通过后发布 v0.1.4。用户要求的 Mac 弹窗通用标准已写入长期记忆更新说明，待记忆系统合并。
 
 ## Blocked
 
@@ -42,18 +42,18 @@
 ## Verification Gaps
 
 - 下次系统真实登录后的自动启动、Intel 设备与 macOS 13 真机、多屏、完整睡眠和长期运行。
-- 未 Developer ID 签名、公证，未创建 Mac 远端仓库或触发远端 CI。
+- 未 Developer ID 签名、公证；Mac 独立公共仓库及 main 已创建，最终提交云端检查运行中。
 
 ## Sync & Safety
 
-- Sync checked at: 2026-10-11 19:00 +08:00；归档验收前观察。
+- Sync checked at: 2026-10-11 19:25 +08:00；归档验收前观察。
 - Docs: OK；本项目合同、README、状态与验收对应同一产物。
 - Git: 当前生产代码已本地 checkpoint；本轮边缘修复与验收文档已归档。
-- Remote: LOCAL ONLY；windows-source 为来源 remote，Mac 分支无远端发布。
-- Rollback: 5fb9ebf72882afdd9cc9b1f7774e4699d096bfa8；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
+- Remote: PUBLIC；origin 为 nanzhufeng/NanfengCodexQuota-Mac，main 已推送；windows-source 仅作来源。Release 正在准备。
+- Rollback: 8a2a921e2648e800baa3103c10c383720e586d8a；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
 - Secrets/config risk: NONE；定向源码扫描 0 个密钥命中；QA 隔离设置，不提交真实额度原始样本，不复制凭据、不调用模型。
 
 ## Next
 
 1. 用户在本机使用当前 .app / DMG；下一次正常登录验证自动启动。
-2. 若请求正式外部分发，再准备 Developer ID / 公证及独立 Mac GitHub 仓库。
+2. 完成 GitHub v0.1.4 Release 上传及远端附件校验；Developer ID / 公证仍为独立发行边界。

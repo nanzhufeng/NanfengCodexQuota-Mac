@@ -23,7 +23,7 @@ GitHub 附件 `NanfengCodexQuota-Mac-v0.1.4-universal.dmg` 对应本地中文安
 
 ## 界面预览
 
-Mac v0.1.4，生产提交 `5fb9ebf`，Apple Silicon / macOS 26.5.2 的真实原生运行页面。常规与关于内容区 1064×711 pt，悬浮窗 132×132 pt；额度来自隔离 fixture，截图不包含用户账户数据。
+Mac v0.1.4，生产提交 `8a2a921`，Apple Silicon / macOS 26.5.2 的真实原生运行页面。常规与关于内容区 1064×711 pt，悬浮窗 132×132 pt；额度来自隔离 fixture，截图不包含用户账户数据。
 
 ![悬浮窗](docs/images/mac-widget.png)
 

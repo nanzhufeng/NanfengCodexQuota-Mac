@@ -1,7 +1,7 @@
 # Mac 最终验收
 
-- 时间：2026-10-11 19:00 +08:00
-- 生产代码：5fb9ebf72882afdd9cc9b1f7774e4699d096bfa8，36 个生产文件 manifest 与最终包一致。
+- 时间：2026-10-11 19:25 +08:00
+- 生产代码：8a2a921e2648e800baa3103c10c383720e586d8a，36 个生产文件 manifest 与最终包一致。
 - Apple Silicon 本机 macOS 26.5.2；arm64 / x86_64 universal 编译、Mac 13+ 部署目标。
 - 自动测试：34 PASS / 1 默认忽略；fmt / clippy -D warnings PASS。
 - 原生隔离 UI：22 / 22 PASS。新增菜单完整五项、点击点右上锚定、刷新不移动、动作后关闭。
@@ -11,14 +11,14 @@
 - 登录启动：旧进程 SecCodeCopyGuestWithAttributes=-67049，新实例 locate=0 / validity=0，用户原始开关真实注册成功；最终构建开关仍开启。未执行系统注销/重登。
 - 打包保护：目标在运行时构建被拒绝，已验证可执行文件字节未变；退出后采用新文件原子替换，不再原地破坏运行中 Mach-O。
 - 最终 DMG：挂载验签通过，包内 executable 与 dist bundle SHA-256 完全一致；真实只读接口已连接、周剩余 85%、五小时接口未提供。没有模型调用。
-- 签名：本地 ad-hoc，非 Developer ID，未 Apple 公证。Mac 仓库未推送。
+- 签名：本地 ad-hoc，非 Developer ID，未 Apple 公证。Mac 独立公共仓库 main 已推送，Release 上传待最终 CI。
 
 ## 产物
 
 - `dist/南枫 Codex 额度.app`
-- `dist/南枫Codex额度-Mac-v0.1.4-universal.dmg`，4709628 bytes
-- DMG SHA-256：`482d0d8061a01d6d7cd76d9860262c548cdeabbb0b4e5282945e80520375ce88`
-- Executable SHA-256：`b2d32ca6f3b8f18f8314b238b4188623c18173170a0c2b286e668af22d98103e`
+- `dist/南枫Codex额度-Mac-v0.1.4-universal.dmg`，4709592 bytes
+- DMG SHA-256：`c33f01e9fb4e8ea9be1e5b1cf39e39be300903a6c94683e93d01babe4a50c2f5`
+- Executable SHA-256：`454a2776028651efb32133ea9e4d38576c519a9f5113efda49291bab9b4e0e01`
 
 截图为当前原生运行页面的隔离 fixture，README 已说明；用户真实服务原始 JSON、系统日志和进程身份审计只保留本地。上述哈希后没有重建或重签产物。
 
