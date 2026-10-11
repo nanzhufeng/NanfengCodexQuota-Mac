@@ -1,34 +1,59 @@
 # Project Status
 
 ## Verified
-- Last verified: 2026-10-11 +08:00
+
+- Last verified: 2026-10-11 18:34 +08:00
 - Branch: macos-port
-- Code baseline: e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a
-- Verification scope: WORKTREE；Mac 移植进行中
+- Code baseline: 39094a7d756d6f20f3b163def3141eadcc5804a0
+- Verification scope: COMMIT；生产源码 36 个文件与冻结包逐项一致；验收脚本、截图与报告随后归档，不改变应用。
 - Status: Active
 
 ## Current
-- 已取得 Windows v0.1.4 原源码与常规、关于截图，确定复用 Rust 核心和圆窗绘制。
+
+- Mac 原生版本已实现原 Windows v0.1.4 的完整功能和设计；Rust 共享核心、AppKit 窗口与控件、Retina 原像素圆窗、原图标。
+- Universal .app / DMG 已生成，本机直接启动显示真实额度；最终 DMG 内应用已验签并跑通只读真实链路。
+- 两页 UI、刷新间隔、置顶、隐藏找回、位置保存、单实例和失败恢复通过隔离原生行为测试；菜单五项完整，右上锚点与位置稳定。
+- 圆窗保留原几何与字重，只调整配色、亮度并填实环内缝隙。菜单采用适度原生玻璃及紧凑密度，没有自绘黑色硬描边。
+- 登录启动拒绝问题已修复：旧实例身份失效，新实例校验及真实注册通过。构建门禁阻止替换运行中的精确应用。
 
 ## In Progress
-- Mac CLI 发现、AppKit 两页 UI、菜单栏、窗口生命周期与独立打包。
+
+- 无进行中的实现工作；用户要求的圆窗配色、填实、紧凑玻璃菜单及静默刷新已完成。
 
 ## Blocked
+
 - 无。
 
 ## Tests
-- Mac build / unit / integration / UI / real service: NOT RUN。
+
+| 检查 | 结论 | 时间 / 平台 / 范围 | 证据 |
+| --- | --- | --- | --- |
+| Rust 单测与 Mac 集成 | PASS：34，通过；1 默认忽略 | 2026-10-11 / 本机 Mac / 本轮源码 | cargo test --all-targets --locked |
+| fmt / clippy | PASS | 2026-10-11 / Mac / 本轮源码 | cargo fmt --all --check；cargo clippy --all-targets --locked -- -D warnings |
+| 两架构构建 | PASS | 2026-10-11 / arm64 + x86_64 交叉构建 | scripts/build-macos.sh --local |
+| 隔离原生 UI | PASS：22 / 22 | 2026-10-11 / 最终 .app / fixture | scripts/qa-macos.py |
+| 视觉对照 | PASS：两页、最小布局、圆窗、失败及缺失状态 | 2026-10-11 / 1064×711、900×640 pt | 本地联系表与 docs/images/mac-*.png |
+| 精确包与真实服务 | PASS：已连接，最终包查询周剩余 86% | 2026-10-11 / 最终 DMG 挂载应用 | tests/verify_macos_package.py；docs/qa/MAC_ACCEPTANCE.md |
+| 直接本机启动与菜单 | PASS | 2026-10-11 / dist 应用 / CUA | 菜单五档、取消和两页导航、关于提交 |
+| 登录启动注册 | PASS | 2026-10-11 / 实际用户开关 / 新实例签名有效 | 真实注册成功，最终构建保留开启状态；实际下次登录尚未执行 |
+| Developer ID / 公证 | NOT RUN | 本次为本地 ad-hoc | 无正式发行身份使用 |
+| Intel 硬件 / 多屏 / 睡眠 / 长期运行 | NOT RUN | 不以编译或合成事件替代 | 待独立环境验收 |
 
 ## Verification Gaps
-- 所有 Mac 行为尚待本轮验证。
+
+- 下次系统真实登录后的自动启动、Intel 设备与 macOS 13 真机、多屏、完整睡眠和长期运行。
+- 未 Developer ID 签名、公证，未创建 Mac 远端仓库或触发远端 CI。
 
 ## Sync & Safety
-- Sync checked at: 2026-10-11 +08:00；克隆后无改动，现为本地移植工作区。
-- Docs: OK；范围与来源见 MAC_PORT.md。
-- Git: DIRTY；本次移植文档。
-- Remote: LOCAL ONLY；windows-source 只作来源，未发布 Mac 仓库。
-- Rollback: e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a；原始来源，不代表 Mac 稳定版本。
-- Secrets/config risk: NONE；尚未读取登录或修改用户配置。
+
+- Sync checked at: 2026-10-11 18:34 +08:00；归档验收前观察。
+- Docs: OK；本项目合同、README、状态与验收对应同一产物。
+- Git: 当前生产代码已本地 checkpoint；验收文档与截图正在归档。
+- Remote: LOCAL ONLY；windows-source 为来源 remote，Mac 分支无远端发布。
+- Rollback: 39094a7d756d6f20f3b163def3141eadcc5804a0；本机已验证的 Mac 代码 checkpoint；Windows 来源为 e6e3c5d9c26f498b5a3b7e9148f21340331c8d7a。
+- Secrets/config risk: NONE；定向源码扫描 0 个密钥命中；QA 隔离设置，不提交真实额度原始样本，不复制凭据、不调用模型。
 
 ## Next
-1. 先验证共享核心在 macOS 上的只读查询。
+
+1. 用户在本机使用当前 .app / DMG；下一次正常登录验证自动启动。
+2. 若请求正式外部分发，再准备 Developer ID / 公证及独立 Mac GitHub 仓库。
