@@ -1,7 +1,7 @@
 import AppKit
 
-// Opaque native host for the existing five context actions. It deliberately avoids
-// NSMenu's system glass, automatic shortening and scrollable viewport on macOS 26.
+// Native glass host for the existing five context actions, with explicit compact
+// geometry so titles stay complete and the click anchor never moves.
 final class ContextRow: NSButton {
     let entry: NSMenuItem
     private var hovered = false
@@ -24,26 +24,24 @@ final class ContextRow: NSButton {
     override func draw(_ dirtyRect: NSRect) {
         let focused = window?.firstResponder === self
         if (hovered || focused || cell?.isHighlighted == true) && isEnabled {
-            NSColor(hex: 0xeef7f2).setFill()
-            NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 8, yRadius: 8).fill()
+            NSColor.black.withAlphaComponent(0.06).setFill()
+            NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 6, yRadius: 6).fill()
         }
         let color = isEnabled ? Ink.dark : Ink.muted
-        if entry.state == .on { drawText("✓", in: NSRect(x: 8, y: 0, width: 20, height: bounds.height), size: 16, color: Ink.green) }
+        if entry.state == .on { drawText("✓", in: NSRect(x: 6, y: 0, width: 14, height: bounds.height), size: 13, color: Ink.green) }
         if let image = entry.image {
-            let tinted = NSImage(size: NSSize(width: 18, height: 18), flipped: false) { r in
+            let tinted = NSImage(size: NSSize(width: 14, height: 14), flipped: false) { r in
                 image.draw(in: r); color.setFill(); r.fill(using: .sourceIn); return true
             }
-            tinted.draw(in: NSRect(x: 33, y: (bounds.height - 18) / 2, width: 18, height: 18), from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+            tinted.draw(in: NSRect(x: 25, y: (bounds.height - 14) / 2, width: 14, height: 14), from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
         }
-        drawText(title, in: NSRect(x: 64, y: 0, width: bounds.width - 74, height: bounds.height), size: 16, color: color)
+        drawText(title, in: NSRect(x: 48, y: 0, width: bounds.width - 56, height: bounds.height), size: 13, color: color)
     }
 }
 final class ContextCard: FlippedView {
     override func draw(_ dirtyRect: NSRect) {
-        let card = NSBezierPath(roundedRect: bounds.insetBy(dx: 0.5, dy: 0.5), xRadius: 12, yRadius: 12)
-        NSColor.white.setFill(); card.fill()
-        Ink.line.setStroke(); card.lineWidth = 1; card.stroke()
-        Ink.line.setFill(); NSRect(x: 16, y: 166, width: bounds.width - 32, height: 1).fill()
+        NSColor.labelColor.withAlphaComponent(0.13).setFill()
+        NSRect(x: 12, y: 127, width: bounds.width - 24, height: 1 / (window?.backingScaleFactor ?? 2)).fill()
     }
 }
 final class ContextPanel: NSPanel {
@@ -53,10 +51,11 @@ final class ContextPanel: NSPanel {
 }
 final class ContextMenuController: NSObject {
     private(set) var panel: ContextPanel?
+    private(set) var contentCard: ContextCard?
     private var entries: [NSMenuItem] = []
     private var localMonitor: Any?
     private var globalMonitor: Any?
-    static let size = NSSize(width: 250, height: 216)
+    static let size = NSSize(width: 190, height: 166)
 
     static func frame(click: NSPoint, work: NSRect) -> NSRect {
         // AppKit screen Y grows upwards: bottom-left is eight points above/right
@@ -75,13 +74,25 @@ final class ContextMenuController: NSObject {
         window.level = .popUpMenu; window.appearance = NSAppearance(named: .aqua)
         window.dismiss = { [weak self] in self?.close() }
         let card = ContextCard(frame: NSRect(origin: .zero, size: Self.size))
-        card.wantsLayer = true; card.layer?.cornerRadius = 12; card.layer?.masksToBounds = true
+        card.wantsLayer = true
         for (index, entry) in entries.enumerated() {
             let row = ContextRow(entry: entry, index: index, owner: self)
-            row.frame = NSRect(x: 8, y: 8 + CGFloat(index) * 40, width: Self.size.width - 16, height: 38)
+            row.frame = NSRect(x: 6, y: 6 + CGFloat(index) * 30 + (index == 4 ? 4 : 0), width: Self.size.width - 12, height: 28)
             card.addSubview(row)
         }
-        window.contentView = card; panel = window
+        if #available(macOS 26.0, *) {
+            let glass = NSGlassEffectView(frame: card.bounds)
+            glass.style = .regular; glass.cornerRadius = 11
+            glass.tintColor = NSColor.white.withAlphaComponent(0.08)
+            glass.contentView = card
+            window.contentView = glass
+        } else {
+            let glass = NSVisualEffectView(frame: card.bounds)
+            glass.material = .menu; glass.blendingMode = .behindWindow; glass.state = .active
+            glass.wantsLayer = true; glass.layer?.cornerRadius = 11; glass.layer?.masksToBounds = true
+            glass.addSubview(card); window.contentView = glass
+        }
+        contentCard = card; panel = window
         localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown, .keyDown]) { [weak self, weak window] event in
             guard let self else { return event }
             if event.type == .keyDown && event.keyCode == 53 { self.close(); return nil }
@@ -101,6 +112,6 @@ final class ContextMenuController: NSObject {
     func close() {
         if let localMonitor { NSEvent.removeMonitor(localMonitor); self.localMonitor = nil }
         if let globalMonitor { NSEvent.removeMonitor(globalMonitor); self.globalMonitor = nil }
-        panel?.orderOut(nil); panel = nil; entries = []
+        panel?.orderOut(nil); panel = nil; contentCard = nil; entries = []
     }
 }

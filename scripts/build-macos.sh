@@ -2,6 +2,20 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export MACOSX_DEPLOYMENT_TARGET=13.0
+assert_app_stopped() {
+  python3 - <<'PY'
+from pathlib import Path
+import subprocess, sys
+expected=str(Path('dist/南枫 Codex 额度.app/Contents/MacOS/NanfengCodexQuota').resolve())
+matches=[]
+for row in subprocess.check_output(['ps','-axo','pid=,comm='],text=True).splitlines():
+    pid, command=row.strip().split(None,1)
+    if command==expected: matches.append(pid)
+if matches:
+    sys.exit('构建目标仍在运行（PID '+','.join(matches)+'）；已阻止替换运行中的程序。')
+PY
+}
+assert_app_stopped
 mode=${1:---local}
 if [[ "$mode" != "--local" && "$mode" != "--distribute" ]]; then
   echo '用法：build-macos.sh [--local|--distribute]' >&2; exit 2
@@ -26,7 +40,10 @@ for arch in arm64 x86_64; do
 done
 app='dist/南枫 Codex 额度.app'
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
-lipo -create .release/NanfengCodexQuota-arm64 .release/NanfengCodexQuota-x86_64 -output "$app/Contents/MacOS/NanfengCodexQuota"
+assert_app_stopped
+lipo -create .release/NanfengCodexQuota-arm64 .release/NanfengCodexQuota-x86_64 -output .release/NanfengCodexQuota-universal.new
+cp .release/NanfengCodexQuota-universal.new "$app/Contents/MacOS/NanfengCodexQuota.new"
+mv "$app/Contents/MacOS/NanfengCodexQuota.new" "$app/Contents/MacOS/NanfengCodexQuota"
 cp macos/Info.plist "$app/Contents/Info.plist"
 cp .release/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 cp LICENSE NOTICE "$app/Contents/Resources/"

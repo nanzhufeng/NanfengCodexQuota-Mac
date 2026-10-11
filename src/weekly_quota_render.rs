@@ -75,6 +75,8 @@ fn render_impl_at_scale(
 
     draw_shadow(&mut canvas);
     draw_outer_ambient_glow(&mut canvas);
+    draw_inner_disc(&mut canvas);
+    draw_inner_highlight(&mut canvas);
     draw_track(&mut canvas);
     if let Some(remaining) = model.remaining_percent {
         draw_available_glow(&mut canvas, remaining);
@@ -90,8 +92,6 @@ fn render_impl_at_scale(
             );
         }
     }
-    draw_inner_disc(&mut canvas);
-    draw_inner_highlight(&mut canvas);
     if let Some(remaining) = model.remaining_percent {
         draw_endpoint(&mut canvas, remaining);
     }
@@ -172,8 +172,8 @@ fn draw_shadow(canvas: &mut Canvas) {
             let distance = distance(px, py, CENTER_X, CENTER_Y + 4.0);
             let outside = (distance - 51.5).max(0.0);
             if outside < 11.0 {
-                let alpha = 0.42 * (-outside * outside / 36.0).exp();
-                canvas.blend(x, y, [64, 12, 8], alpha);
+                let alpha = 0.30 * (-outside * outside / 36.0).exp();
+                canvas.blend(x, y, [24, 14, 18], alpha);
             }
         },
         canvas,
@@ -185,7 +185,7 @@ fn draw_outer_ambient_glow(canvas: &mut Canvas) {
         |canvas, x, y, px, py| {
             let ring_distance = (distance(px, py, CENTER_X, CENTER_Y) - RING_RADIUS).abs();
             if ring_distance < 11.0 {
-                let alpha = 0.11 * (-(ring_distance - 3.0).max(0.0).powi(2) / 18.0).exp();
+                let alpha = 0.025 * (-(ring_distance - 3.0).max(0.0).powi(2) / 18.0).exp();
                 canvas.blend(x, y, [255, 68, 16], alpha);
             }
         },
@@ -194,7 +194,7 @@ fn draw_outer_ambient_glow(canvas: &mut Canvas) {
 }
 
 fn draw_track(canvas: &mut Canvas) {
-    draw_ring(canvas, |_progress| Some(([112, 37, 43], 0.98)));
+    draw_ring(canvas, |_progress| Some(([65, 37, 45], 1.0)));
 }
 
 fn draw_available_glow(canvas: &mut Canvas, remaining: u8) {
@@ -212,7 +212,7 @@ fn draw_available_glow(canvas: &mut Canvas, remaining: u8) {
             }
             let ring_distance = (dx.hypot(dy) - RING_RADIUS).abs();
             if ring_distance < 10.0 {
-                let alpha = 0.24 * (-(ring_distance - 2.8).max(0.0).powi(2) / 8.0).exp();
+                let alpha = 0.06 * (-(ring_distance - 2.8).max(0.0).powi(2) / 8.0).exp();
                 let color = available_color((progress / fraction).clamp(0.0, 1.0));
                 canvas.blend(x, y, color, alpha);
             }
@@ -256,19 +256,20 @@ fn draw_inner_disc(canvas: &mut Canvas) {
             let dx = px - CENTER_X;
             let dy = py - CENTER_Y;
             let distance = dx.hypot(dy);
-            let coverage = (46.3 - distance).clamp(0.0, 1.0);
+            // Extend only the opaque center beneath the original thin ring.
+            let coverage = (54.6 - distance).clamp(0.0, 1.0);
             if coverage <= 0.0 {
                 return;
             }
-            let vertical = ((py - (CENTER_Y - 46.3)) / 92.6).clamp(0.0, 1.0);
-            let radial = (distance / 46.3).clamp(0.0, 1.0);
-            let top = [60.0, 25.0, 29.0];
-            let bottom = [20.0, 11.0, 17.0];
+            let vertical = ((py - (CENTER_Y - 54.6)) / 109.2).clamp(0.0, 1.0);
+            let radial = (distance / 54.6).clamp(0.0, 1.0);
+            let top = [36.0, 7.0, 15.0];
+            let bottom = [27.0, 3.0, 9.0];
             let mut color = lerp_color(top, bottom, vertical * 0.78 + radial * 0.22);
             let warm = 1.0 - ((dx + 14.0).hypot(dy + 18.0) / 62.0).clamp(0.0, 1.0);
-            color[0] = (f32::from(color[0]) + warm * 12.0).min(255.0) as u8;
-            color[1] = (f32::from(color[1]) + warm * 4.0).min(255.0) as u8;
-            canvas.blend(x, y, color, coverage * 0.98);
+            color[0] = (f32::from(color[0]) + warm * 2.0).min(255.0) as u8;
+            color[1] = (f32::from(color[1]) + warm * 1.0).min(255.0) as u8;
+            canvas.blend(x, y, color, coverage);
         },
         canvas,
     );
@@ -280,7 +281,7 @@ fn draw_inner_highlight(canvas: &mut Canvas) {
             let normalized = ((px - (CENTER_X - 12.0)) / 34.0).powi(2)
                 + ((py - (CENTER_Y - 22.0)) / 15.0).powi(2);
             if normalized < 1.0 && distance(px, py, CENTER_X, CENTER_Y) < 43.8 {
-                canvas.blend(x, y, [255, 167, 116], (1.0 - normalized) * 0.11);
+                canvas.blend(x, y, [255, 255, 255], (1.0 - normalized) * 0.025);
             }
         },
         canvas,
@@ -339,7 +340,7 @@ fn draw_refresh_pill(canvas: &mut Canvas, typography: Typography) {
         typography.refresh_pill_width,
         typography.refresh_pill_height,
         typography.refresh_pill_height / 2.0,
-        [113, 47, 35],
+        [65, 39, 46],
         0.82,
     );
     draw_rounded_rect(
@@ -349,7 +350,7 @@ fn draw_refresh_pill(canvas: &mut Canvas, typography: Typography) {
         typography.refresh_pill_width - 2.0,
         typography.refresh_pill_height - 2.0,
         (typography.refresh_pill_height - 2.0) / 2.0,
-        [45, 20, 21],
+        [65, 39, 46],
         0.92,
     );
 }
@@ -365,7 +366,7 @@ fn draw_labels(canvas: &mut Canvas, model: &WeeklyQuotaRenderModel) {
             19.0 + CONTENT_PADDING,
             30.0,
             36.0,
-            [255, 247, 240],
+            [255, 255, 255],
             1.0,
         );
     }
@@ -389,7 +390,7 @@ fn draw_labels(canvas: &mut Canvas, model: &WeeklyQuotaRenderModel) {
             typography.refresh_top + CONTENT_PADDING,
             typography.refresh_font_size,
             typography.refresh_height,
-            [255, 207, 166],
+            [235, 225, 228],
             0.98,
         );
     }
@@ -509,13 +510,13 @@ fn arc_contains(progress: f32, fraction: f32) -> bool {
 }
 
 fn available_color(progress: f32) -> [u8; 3] {
-    if progress < 0.48 {
-        lerp_color([255.0, 188.0, 25.0], [255.0, 101.0, 10.0], progress / 0.48)
+    if progress < 0.52 {
+        lerp_color([255.0, 59.0, 69.0], [255.0, 128.0, 31.0], progress / 0.52)
     } else {
         lerp_color(
-            [255.0, 101.0, 10.0],
-            [255.0, 48.0, 28.0],
-            (progress - 0.48) / 0.52,
+            [255.0, 128.0, 31.0],
+            [255.0, 194.0, 20.0],
+            (progress - 0.52) / 0.48,
         )
     }
 }

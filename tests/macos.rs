@@ -134,3 +134,15 @@ fn retina_export_has_transparent_corners_and_valid_premultiplied_alpha() {
             .all(|p| p[0] <= p[3] && p[1] <= p[3] && p[2] <= p[3])
     );
 }
+
+#[test]
+fn widget_inner_gap_is_filled_without_changing_its_thin_ring_geometry() {
+    let pixels = render_weekly_quota_base_at_scale(&WeeklyQuotaRenderModel::preview(87), 2);
+    for (x, y) in [(66, 17), (113, 64), (66, 111), (19, 64)] {
+        assert_eq!(
+            pixels[((y * 2) * 264 + x * 2) * 4 + 3],
+            255,
+            "gap at {x},{y}"
+        );
+    }
+}

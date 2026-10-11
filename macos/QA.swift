@@ -29,6 +29,7 @@ final class NativeQA {
             check("native_app_reads_real_service", true)
             check("login_stays_disabled", !app.loginEnabled)
             capture("live-settings", view: view)
+            capture("live-widget", view: app.widgetView)
             let summary: [String: Any] = ["status": snapshot.status, "percentLabel": snapshot.percentLabel, "shortLabel": snapshot.shortLabel, "commit": snapshot.commit, "dirty": snapshot.dirty, "version": snapshot.version]
             try? JSONSerialization.data(withJSONObject: summary, options: [.prettyPrinted, .sortedKeys]).write(to: root.appendingPathComponent("live-summary.json"))
             finish(); return
@@ -40,14 +41,14 @@ final class NativeQA {
             capture("settings", view: view); capture("widget", view: app.widgetView)
             let click = NSPoint(x: NSScreen.main!.visibleFrame.midX, y: NSScreen.main!.visibleFrame.midY)
             app.showContextMenu(at: click)
-            if let menu = app.contextMenu.panel, let card = menu.contentView {
+            if let menu = app.contextMenu.panel, let card = app.contextMenu.contentCard {
                 let rows = card.subviews.compactMap { $0 as? ContextRow }
                 check("context_menu_all_five_items", rows.map(\.title) == ["立即刷新", "打开主界面", "保持置顶", "隐藏悬浮窗", "退出"] && rows.allSatisfy { card.bounds.contains($0.frame) })
                 check("context_menu_upper_right_anchor", menu.frame.minX > click.x && menu.frame.minY > click.y)
                 let anchored = menu.frame
                 app.poll()
                 check("context_menu_position_stable", menu.frame == anchored)
-                capture("context-menu", view: card)
+                capture("context-menu", view: menu.contentView!)
                 rows[1].performClick(nil)
                 check("context_menu_action_closes_panel", app.contextMenu.panel == nil && app.settingsWindow?.isVisible == true)
             }

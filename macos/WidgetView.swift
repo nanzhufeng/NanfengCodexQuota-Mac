@@ -21,8 +21,8 @@ final class WidgetView: FlippedView {
             }
         }
         image?.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
-        drawText(snapshot?.percentLabel ?? "--%", in: NSRect(x: 28, y: 27, width: 76, height: 37), size: 30, weight: .semibold, color: NSColor(hex: 0xffe7d3), align: .center)
-        drawText(snapshot?.refreshLabel ?? "等待查询", in: NSRect(x: 23, y: 68, width: 86, height: 20), size: 11, color: NSColor(hex: 0xffe7d3), align: .center)
+        drawText(snapshot?.percentLabel ?? "--%", in: NSRect(x: 28, y: 27, width: 76, height: 37), size: 30, weight: .semibold, color: NSColor.white, align: .center)
+        drawText(snapshot?.refreshLabel ?? "等待查询", in: NSRect(x: 23, y: 68, width: 86, height: 20), size: 11, color: NSColor(hex: 0xebe1e4), align: .center)
         toolTip = snapshot?.details
         setAccessibilityLabel("周剩余额度 \(snapshot?.percentLabel ?? "未知")，\(snapshot?.status ?? "等待查询")。拖动移动，右键打开菜单。")
     }
