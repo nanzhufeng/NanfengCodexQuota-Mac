@@ -4,11 +4,13 @@
 
 - Last verified: 2026-10-11 20:03 +08:00
 - Branch: macos-port
-- Code baseline: 0e01d765956c701ed2aefa96a9b732101effa243
+- Code baseline: f86f6c5；v0.1.6 Apple Development 签名增量
 - Verification scope: COMMIT；生产源码 36 个文件与冻结包逐项一致；验收脚本、截图与报告随后归档，不改变应用。
 - Status: Active
 
 ## Current
+
+- v0.1.6 已按用户明确指令使用南枫 AI 的同一张 Apple Development 证书打包；叶证书 SHA-256 完全相同。34 Rust 通过／1 忽略、5 配置门禁、fmt／clippy、Universal 构建、原生 23 项及最终 DMG 真实只读查询通过。默认 Gatekeeper 仍 rejected，未覆盖 Applications、未代用户确认安全例外。详细证据见 [开发证书验签](qa/APPLE_DEVELOPMENT_SIGNING.md)。下方 v0.1.5 是此前交付记录。
 
 - Mac 原生版本已实现原 Windows v0.1.4 的完整功能和设计；Rust 共享核心、AppKit 窗口与控件、Retina 原像素圆窗、原图标。
 - v0.1.5 Universal .app / DMG 已生成，恢复普通应用身份；原生隔离及真实只读链路通过。默认 Gatekeeper 评估仍拒绝，未完成用户下载版获准启动验收。
@@ -56,6 +58,8 @@
 - Secrets/config risk: NONE；定向源码扫描 0 个密钥命中；QA 隔离设置，不提交真实额度原始样本，不复制凭据、不调用模型。
 
 ## Next
+
+- 当前先交付 v0.1.6 同证书包；安装版仍为此前版本，实际获准启动、应用列表和真实登录启动需另验。以下 v0.1.5 步骤属于此前记录。
 
 1. 用户下载 v0.1.5，复制替换安装版并自行作首次安全决定，再核验实际应用列表与启动路径。
 2. 若要求默认门禁直接通过，准备 Developer ID 与公证身份；当前不能以本地 seal 或可执行文件存在代替。
