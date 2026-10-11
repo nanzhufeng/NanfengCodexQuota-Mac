@@ -202,7 +202,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc func screenChanged() { restorePosition(); savePosition() }
     @objc func wake() { restorePosition(); core?.refresh() }
-    @objc func openGitHub() { NSWorkspace.shared.open(URL(string: "https://github.com/nanzhufeng/NanfengCodexQuota-Windows")!) }
+    @objc func openGitHub() { NSWorkspace.shared.open(URL(string: "https://github.com/nanzhufeng/NanfengCodexQuota-Mac")!) }
     @objc func quitApp() { NSApp.terminate(nil) }
     func applicationWillTerminate(_ notification: Notification) {
         contextMenu.close()

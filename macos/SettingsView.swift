@@ -38,7 +38,7 @@ final class SettingsView: FlippedView {
         topButton = PillButton("保持悬浮窗置顶", style: .toggle, target: app, action: #selector(AppDelegate.setTop(_:)))
         startupButton = PillButton("登录 Mac 时启动", style: .toggle, target: app, action: #selector(AppDelegate.setStartup(_:)))
         intervalButton = PillButton("60 秒", style: .choice, target: self, action: #selector(intervalMenu))
-        githubButton = PillButton("GitHub · nanzhufeng/NanfengCodexQuota-Windows ↗", style: .link, target: app, action: #selector(AppDelegate.openGitHub))
+        githubButton = PillButton("GitHub · nanzhufeng/NanfengCodexQuota-Mac ↗", style: .link, target: app, action: #selector(AppDelegate.openGitHub))
         for b in [generalButton, aboutButton, refreshButton, positionButton, topButton, startupButton, intervalButton, githubButton] { addSubview(b!) }
         addSubview(badge)
         for (key, text, size, weight, color, align) in [
