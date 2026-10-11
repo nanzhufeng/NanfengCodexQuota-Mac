@@ -70,7 +70,10 @@ final class ContextPanel: NSPanel {
 final class ContextMenuController: NSObject {
     private(set) var panel: ContextPanel?
     private(set) var contentCard: ContextCard?
-    var surfaceFrame: NSRect? { panel?.frame.insetBy(dx: ContextSurfaceHost.inset, dy: ContextSurfaceHost.inset) }
+    var surfaceFrame: NSRect? {
+        guard let panel, let contentCard else { return nil }
+        return panel.convertToScreen(contentCard.convert(contentCard.bounds, to: nil))
+    }
     private var entries: [NSMenuItem] = []
     private var localMonitor: Any?
     private var globalMonitor: Any?
