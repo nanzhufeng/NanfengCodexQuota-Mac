@@ -184,6 +184,8 @@ final class SettingsView: FlippedView {
             (group.1 as NSString).draw(in: NSRect(x: left + 24, y: y + 36, width: width - 48, height: 82), withAttributes: [.font: NSFont.systemFont(ofSize: 16), .foregroundColor: Ink.dark, .paragraphStyle: paragraph])
             if i < 2 { Ink.line.setFill(); NSRect(x: left + 24, y: y + 126, width: width - 48, height: 1).fill() }
         }
-        setAccessibilityLabel("关于南枫 Codex 额度，Mac 版 \(snapshot?.version ?? "")，Git Commit \(commit)\(local)，开发者席瑞")
+        let review = "功能审阅：保留安装引导 · 首次打开安装包进入 · 减少步骤，无常驻按钮"
+        drawText(review, in: NSRect(x: left + 12, y: 147, width: width - 24, height: 18), size: 12, color: Ink.muted, align: .center)
+        setAccessibilityLabel("关于南枫 Codex 额度，Mac 版 \(snapshot?.version ?? "")，Git Commit \(commit)\(local)，开发者席瑞，功能审阅：保留安装引导，安装包首次打开进入，不新增常驻按键")
     }
 }

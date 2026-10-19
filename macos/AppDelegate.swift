@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var loginEnabled: Bool { qaRoot == nil && SMAppService.mainApp.status == .enabled }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if InstallationFlow.offerIfNeeded(arguments: CommandLine.arguments) { return }
         do {
             let args = CommandLine.arguments
             func option(_ name: String) -> String? { guard let i = args.firstIndex(of: name), i + 1 < args.count else { return nil }; return args[i + 1] }
@@ -126,7 +127,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         if let latest { settingsView?.update(latest, loginState: loginEnabled) }
         NSApp.activate(ignoringOtherApps: true); settingsWindow?.makeKeyAndOrderFront(nil)
     }
-    @objc func reopen() { findWidget(); openSettings() }
+    @objc func reopen() {
+        guard core != nil else { NSApp.activate(ignoringOtherApps: true); return }
+        findWidget(); openSettings()
+    }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { reopen(); return false }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationDidBecomeActive(_ notification: Notification) {
