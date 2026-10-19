@@ -24,3 +24,11 @@
 ## 交付与缺口
 
 本轮仅本地修复及签名打包；未推送／发布 GitHub，未替换或重启 Applications 的旧实例，未改正式设置、登录项或 Codex 登录。项目 AGENTS 明确不自动安装，需要用户允许替换后才操作。真实长期网络波动、睡眠及 Intel 硬件未验收。
+
+## GitHub 发布完成
+
+用户随后明确要求“打包上传 GitHub”，已将生产提交 8d52660 及本轮文档／当前原生预览推送到 main；[v0.1.7](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/tag/v0.1.7) 为正式 Release，非草稿／非预发布。标签精确对应生产 8d52660d76faa0608c43d9d0fb8e05abd71fe5ae。
+
+两个附件 NanfengCodexQuota-Mac-v0.1.7-universal.dmg（4,714,008 bytes）与同名 .sha256（109 bytes）均 uploaded；从远端重新下载后，大小、SHA-256 与本机冻结附件逐项一致。[CI 39227895713](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/actions/runs/39227895713) 对 a380cf9 成功。没有重新生成或重签已冻结产物。
+
+本次授权为上传发布，未覆盖或重启 Applications 的旧实例。

@@ -18,7 +18,7 @@
 
 ## In Progress
 
-- 等待用户明确允许替换安装；按项目 AGENTS 不自动覆盖 Applications。
+- 本轮打包上传已完成；Applications 的旧版未自动覆盖，安装不属于本次上传动作。
 
 ## Blocked
 
@@ -33,6 +33,7 @@
 | Universal／验签 | PASS | arm64＋x86_64；Apple Development |
 | 原生隔离 | 24／24 PASS | 最终 App；fixture、成功／失败／恢复、窗口／菜单 |
 | 精确 DMG／真实只读查询 | PASS，已连接 | 挂载 App 字节一致，隔离设置 |
+| GitHub 发布与下载 | PASS | 正式 Release、两附件字节一致、CI 成功 |
 | 用户运行实例替换／长期网络 | NOT RUN | 待授权安装；不以当前查询证明长期稳定 |
 
 ## Verification Gaps
@@ -42,7 +43,7 @@
 
 ## Sync & Safety
 
-- 本轮仅本地提交及产物，未 push／发布；远端本轮未查询。
+- main 已推送，v0.1.7 正式 Release 已发布；两个附件重新下载字节一致，标签对应生产 8d52660。CI 39227895713 对 a380cf9 成功。
 - 正式设置、登录项与 Codex 凭据未修改；真实接口仅 initialize 和 account/rateLimits/read。
 - 可回滚基线：4faf1da，先前 v0.1.6 记录保留于 Git 与各验收文档。
 
