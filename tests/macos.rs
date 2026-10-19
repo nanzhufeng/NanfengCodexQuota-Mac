@@ -62,9 +62,11 @@ for line in sys.stdin:
     assert_eq!(value["shortLabel"], "剩余 77%");
     fs::write(&state, "failure").unwrap();
     core.refresh();
-    let failed = await_snapshot(&mut core, "连接失败");
+    let failed = await_snapshot(&mut core, "Connection unavailable");
     assert_eq!(failed["percentLabel"], "34%");
     assert_eq!(failed["statusKind"], "warning");
+    assert_eq!(failed["refreshLabel"], value["refreshLabel"]);
+    assert!(failed["suggestion"].as_str().unwrap().is_ascii());
     fs::write(&state, "missing").unwrap();
     core.refresh();
     let missing = await_snapshot(&mut core, "已连接");
@@ -73,6 +75,87 @@ for line in sys.stdin:
     fs::write(&state, "success").unwrap();
     core.refresh();
     assert_eq!(await_snapshot(&mut core, "已连接")["percentLabel"], "34%");
+}
+
+#[test]
+fn transient_transport_failure_is_retried_in_the_same_refresh() {
+    let dir = tempfile::tempdir().unwrap();
+    let attempts = dir.path().join("attempts");
+    let cli = fixture(
+        dir.path(),
+        &format!(
+            r#"import json,sys
+from pathlib import Path
+marker=Path({:?})
+for line in sys.stdin:
+    r=json.loads(line)
+    if r['method']=='initialize': result={{'result':{{}}}}
+    elif r['method']=='account/rateLimits/read':
+        count=int(marker.read_text()) if marker.exists() else 0
+        marker.write_text(str(count+1))
+        if count==0: result={{'error':{{'message':'network connection temporarily unavailable'}}}}
+        else: result={{'result':{{'rateLimits':{{'secondary':{{'usedPercent':35,'windowDurationMins':10080}}}}}}}}
+    else: raise SystemExit('unexpected non-read-only RPC')
+    print(json.dumps({{'id':r['id'],**result}}),flush=True)
+"#,
+            attempts.to_string_lossy()
+        ),
+    );
+    let mut provider = nanfeng_codex_quota::provider::Provider::new(Some(cli));
+    let (limits, _) = provider
+        .read()
+        .expect("one transient failure should recover silently");
+    assert_eq!(limits.secondary.remaining_percent(), Some(65));
+    assert_eq!(fs::read_to_string(attempts).unwrap(), "2");
+}
+
+#[test]
+fn authentication_failure_is_not_retried_or_hidden() {
+    let dir = tempfile::tempdir().unwrap();
+    let attempts = dir.path().join("attempts");
+    let cli = fixture(
+        dir.path(),
+        &format!(
+            r#"import json,sys
+from pathlib import Path
+marker=Path({:?})
+for line in sys.stdin:
+    r=json.loads(line)
+    if r['method']=='initialize': result={{'result':{{}}}}
+    elif r['method']=='account/rateLimits/read':
+        marker.write_text(marker.read_text()+'x' if marker.exists() else 'x')
+        result={{'error':{{'message':'401 Unauthorized'}}}}
+    else: raise SystemExit('unexpected RPC')
+    print(json.dumps({{'id':r['id'],**result}}),flush=True)
+"#,
+            attempts.to_string_lossy()
+        ),
+    );
+    let mut provider = nanfeng_codex_quota::provider::Provider::new(Some(cli));
+    assert!(matches!(
+        provider.read(),
+        Err(nanfeng_codex_quota::monitor::Failure::NotAuthenticated)
+    ));
+    assert_eq!(fs::read_to_string(attempts).unwrap(), "x");
+}
+
+#[test]
+fn initialize_and_query_share_one_bounded_timeout() {
+    let dir = tempfile::tempdir().unwrap();
+    let cli = fixture(
+        dir.path(),
+        r#"import json,sys,time
+for line in sys.stdin:
+    r=json.loads(line)
+    time.sleep(0.25)
+    result={} if r['method']=='initialize' else {'rateLimits':{}}
+    print(json.dumps({'id':r['id'],'result':result}),flush=True)
+"#,
+    );
+    let result = nanfeng_codex_quota::codex::CodexClient::new(cli)
+        .with_timeout(Duration::from_millis(400))
+        .read_rate_limits();
+    assert!(result.unwrap_err().to_string().contains("timed out"));
 }
 #[test]
 fn mac_exit_cancels_and_reaps_the_exact_in_flight_child() {

@@ -43,11 +43,30 @@ impl Provider {
             if self.cancellation.load(std::sync::atomic::Ordering::Relaxed) {
                 break;
             }
-            match CodexClient::new(&path)
-                .with_timeout(Duration::from_secs(8))
-                .with_cancellation(self.cancellation.clone())
-                .read_rate_limits()
-            {
+            let read = || {
+                CodexClient::new(&path)
+                    .with_timeout(Duration::from_secs(12))
+                    .with_cancellation(self.cancellation.clone())
+                    .read_rate_limits()
+            };
+            let mut result = read();
+            // Reconnect once for transient transport errors before exposing a
+            // failed poll. Never retry authentication or protocol failures.
+            if result.as_ref().err().is_some_and(|error| {
+                matches!(
+                    classify(&format!("{error:#}")),
+                    Failure::Network | Failure::Timeout
+                )
+            }) {
+                for _ in 0..2 {
+                    if self.cancellation.load(std::sync::atomic::Ordering::Relaxed) {
+                        return Err(Failure::Timeout);
+                    }
+                    std::thread::sleep(Duration::from_millis(100));
+                }
+                result = read();
+            }
+            match result {
                 Ok(limits) => {
                     self.cached = Some(path.clone());
                     return Ok((limits, path.display().to_string()));
@@ -79,6 +98,8 @@ fn classify(message: &str) -> Failure {
     .any(|t| s.contains(t))
     {
         Failure::NotAuthenticated
+    } else if s.contains("timed out") || s.contains("timeout") {
+        Failure::Timeout
     } else if [
         "network",
         "connection",
@@ -92,8 +113,6 @@ fn classify(message: &str) -> Failure {
     .any(|t| s.contains(t))
     {
         Failure::Network
-    } else if s.contains("timed out") || s.contains("timeout") {
-        Failure::Timeout
     } else {
         Failure::Protocol
     }

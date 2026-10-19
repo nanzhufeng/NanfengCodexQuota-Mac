@@ -83,6 +83,7 @@ impl CodexClient {
     }
 
     fn exchange(&self, child: &mut Child) -> Result<RateLimits> {
+        let deadline = Instant::now() + self.timeout;
         let mut stdin = child
             .stdin
             .take()
@@ -111,9 +112,19 @@ impl CodexClient {
             "initialize",
             json!({"clientInfo": {"name": "Codex Minibar", "version": env!("CARGO_PKG_VERSION")}}),
         )?;
-        wait_for_response(&receiver, 1, self.timeout, self.cancellation.as_deref())?;
+        wait_for_response(
+            &receiver,
+            1,
+            deadline.saturating_duration_since(Instant::now()),
+            self.cancellation.as_deref(),
+        )?;
         send_request(&mut stdin, 2, "account/rateLimits/read", Value::Null)?;
-        let response = wait_for_response(&receiver, 2, self.timeout, self.cancellation.as_deref())?;
+        let response = wait_for_response(
+            &receiver,
+            2,
+            deadline.saturating_duration_since(Instant::now()),
+            self.cancellation.as_deref(),
+        )?;
         parse_rate_limits(&response, Utc::now())
     }
 }

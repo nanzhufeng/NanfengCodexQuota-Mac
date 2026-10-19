@@ -68,26 +68,30 @@ impl MacCore {
         let model = self.monitor.render_model(now, self.config.interval_secs);
         let (status, kind, suggestion) = match self.monitor.failure {
             Some(Failure::NotInstalled) => (
-                "未找到 Codex",
+                Failure::NotInstalled.label(),
                 "warning",
-                "请安装 Codex 桌面应用或 Codex CLI，再点击立即刷新。",
+                "Install Codex or Codex CLI, then refresh.",
             ),
             Some(Failure::NotAuthenticated) => (
-                "请登录 Codex",
+                Failure::NotAuthenticated.label(),
                 "warning",
-                "请在本机 Codex 中登录，再点击立即刷新。",
+                "Sign in to Codex, then refresh.",
             ),
             Some(Failure::Network) => (
-                "连接失败",
+                Failure::Network.label(),
                 "warning",
-                "请检查网络，稍后重试；保留最近成功值。",
+                "Retrying automatically. Last successful values are retained.",
             ),
             Some(Failure::Protocol) => (
-                "接口不兼容",
+                Failure::Protocol.label(),
                 "warning",
-                "请更新本机 Codex，再点击立即刷新。",
+                "Update Codex, then refresh.",
             ),
-            Some(Failure::Timeout) => ("查询超时", "warning", "请检查网络后重试；保留最近成功值。"),
+            Some(Failure::Timeout) => (
+                Failure::Timeout.label(),
+                "warning",
+                "Retrying automatically. Last successful values are retained.",
+            ),
             None if self.monitor.stale(now, self.config.interval_secs) => {
                 ("数据过期", "warning", "最近成功值已过期，请刷新。")
             }

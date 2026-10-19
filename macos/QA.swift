@@ -9,6 +9,7 @@ final class NativeQA {
     let root: URL
     var step = 0, ticks = 0
     var results: [String: Bool] = [:]
+    var lastSuccessfulRefreshLabel = ""
     var timer: Timer?
     let liveOnly: Bool
     init(app: AppDelegate, root: URL, liveOnly: Bool = false) { self.app = app; self.root = root; self.liveOnly = liveOnly }
@@ -77,11 +78,14 @@ final class NativeQA {
             step = 10
         case 10:
             guard !snapshot.refreshing else { return }
+            lastSuccessfulRefreshLabel = snapshot.refreshLabel
             try? "failure".write(to: root.appendingPathComponent("fixture-state"), atomically: true, encoding: .utf8)
             app.refresh(); step = 1
         case 1:
-            guard snapshot.status == "连接失败" else { return }
+            guard snapshot.status == "Connection unavailable" else { return }
             check("failure_preserves_success", snapshot.percentLabel == "34%" && snapshot.statusKind == "warning")
+            check("failure_preserves_update_time", snapshot.refreshLabel == lastSuccessfulRefreshLabel)
+            capture("widget-failure", view: app.widgetView)
             capture("failure", view: view)
             try? "missing".write(to: root.appendingPathComponent("fixture-state"), atomically: true, encoding: .utf8)
             app.refresh(); step = 2

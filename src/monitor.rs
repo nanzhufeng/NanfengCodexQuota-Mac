@@ -12,11 +12,11 @@ pub enum Failure {
 impl Failure {
     pub fn label(self) -> &'static str {
         match self {
-            Self::NotInstalled => "未找到 Codex",
-            Self::NotAuthenticated => "请登录 Codex",
-            Self::Network => "连接失败",
-            Self::Protocol => "接口不兼容",
-            Self::Timeout => "查询超时",
+            Self::NotInstalled => "Codex not found",
+            Self::NotAuthenticated => "Sign in to Codex",
+            Self::Network => "Connection unavailable",
+            Self::Protocol => "Unsupported response",
+            Self::Timeout => "Request timed out",
         }
     }
 }
@@ -47,22 +47,20 @@ impl Monitor {
                 (now - l.sampled_at).num_seconds() > (interval * 2).max(120) as i64
             })
     }
-    pub fn render_model(&self, now: DateTime<Utc>, interval: u64) -> WeeklyQuotaRenderModel {
+    pub fn render_model(&self, _now: DateTime<Utc>, _interval: u64) -> WeeklyQuotaRenderModel {
         let remaining = self
             .limits
             .as_ref()
             .and_then(|l| l.secondary.remaining_percent());
-        let label = if let Some(f) = self.failure {
-            f.label().to_string()
-        } else if self.stale(now, interval) {
-            "数据过期".into()
-        } else if let Some(l) = &self.limits {
+        // Keep the last successful time through refreshes and failures. Never
+        // replace it with an error, or advance it before a successful response.
+        let label = if let Some(l) = &self.limits {
             format!(
                 "更新 {}",
                 l.sampled_at.with_timezone(&Local).format("%H:%M")
             )
         } else {
-            "等待查询".into()
+            "--:--".into()
         };
         WeeklyQuotaRenderModel {
             remaining_percent: remaining,
@@ -108,7 +106,12 @@ pub fn retry_delay(interval: u64, failures: u32) -> u64 {
     if failures == 0 {
         interval
     } else {
-        interval.saturating_mul(1u64 << failures.min(3)).min(600)
+        match failures {
+            1 => 3,
+            2 => 10,
+            3 => 30,
+            _ => interval.clamp(30, 60),
+        }
     }
 }
 pub fn clamp_position(x: i32, y: i32, size: i32, work: (i32, i32, i32, i32)) -> (i32, i32) {
@@ -165,9 +168,15 @@ mod tests {
             },
             "CLI".into(),
         );
+        let last_update = m.render_model(now, 60).refresh_label;
         m.failed(Failure::Network);
         assert_eq!(m.render_model(now, 60).percent_label, "66%");
-        assert_eq!(m.render_model(now, 60).refresh_label, "连接失败");
+        assert_eq!(m.render_model(now, 60).refresh_label, last_update);
+        assert_eq!(
+            m.render_model(now + chrono::Duration::hours(2), 60)
+                .refresh_label,
+            last_update
+        );
         assert!(m.stale(now, 60));
         m.succeeded(
             RateLimits {
@@ -178,6 +187,32 @@ mod tests {
         );
         assert!(!m.stale(now, 60));
         assert!(m.failure.is_none());
+    }
+
+    #[test]
+    fn first_query_failure_has_no_chinese_widget_message() {
+        let now = Utc::now();
+        for failure in [
+            Failure::NotInstalled,
+            Failure::NotAuthenticated,
+            Failure::Network,
+            Failure::Protocol,
+            Failure::Timeout,
+        ] {
+            let mut monitor = Monitor::default();
+            monitor.failed(failure);
+            assert_eq!(monitor.render_model(now, 60).refresh_label, "--:--");
+            assert!(failure.label().is_ascii());
+        }
+    }
+
+    #[test]
+    fn transient_failure_recovers_promptly_without_ten_minute_backoff() {
+        assert_eq!(retry_delay(60, 0), 60);
+        assert_eq!(retry_delay(60, 1), 3);
+        assert_eq!(retry_delay(60, 2), 10);
+        assert_eq!(retry_delay(60, 3), 30);
+        assert_eq!(retry_delay(600, 10), 60);
     }
     #[test]
     fn absent_window_never_becomes_zero() {
@@ -197,14 +232,20 @@ mod tests {
             }),
             ..Default::default()
         };
-        assert_eq!(m.render_model(Utc::now(), 60).refresh_label, "数据过期");
+        assert!(m.stale(Utc::now(), 60));
+        assert!(
+            m.render_model(Utc::now(), 60)
+                .refresh_label
+                .starts_with("更新 ")
+        );
     }
     #[test]
     fn backoff_has_a_bound() {
         assert_eq!(retry_delay(60, 0), 60);
-        assert_eq!(retry_delay(60, 1), 120);
-        assert_eq!(retry_delay(60, 10), 480);
-        assert_eq!(retry_delay(300, 10), 600);
+        for failures in 1..100 {
+            assert!(retry_delay(60, failures) <= 60);
+            assert!(retry_delay(300, failures) <= 60);
+        }
     }
     #[test]
     fn restores_a_removed_monitor_without_losing_negative_coordinates() {
