@@ -13,7 +13,7 @@ macOS 原生只读额度悬浮窗，复用本机 Codex 登录，无需保持 Cod
 
 支持 macOS 13+，Apple Silicon / Intel 通用二进制。[下载最新版安装包](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/latest)。打开 DMG，将“南枫 Codex 额度.app”拖到 Applications。先在 Codex 中登录，再运行应用。
 
-GitHub 附件 `NanfengCodexQuota-Mac-v0.1.7-universal.dmg` 对应本地中文安装包“南枫Codex额度-Mac-v0.1.7-universal.dmg”；同版本提供 SHA-256 校验文件。
+GitHub 附件 `NanfengCodexQuota-Mac-v0.1.7-universal.dmg` 对应本地中文安装包“南枫Codex额度-Mac-v0.1.7-universal.dmg”。
 
 安装后可从系统应用列表或 Dock 找到应用。点击或双击菜单栏图标打开主界面；右键菜单栏或圆窗可刷新、打开主界面、切换置顶、隐藏 / 显示与退出。双击圆窗也可打开主界面。关闭设置窗口后额度监控继续运行。
 
@@ -21,7 +21,7 @@ GitHub 附件 `NanfengCodexQuota-Mac-v0.1.7-universal.dmg` 对应本地中文安
 
 当前安装包沿用已核验的 Apple Development 签名身份。
 
-首次打开被拦截时，如果你确认下载来源和 SHA-256 校验一致，需要你本人按 [苹果官方步骤](https://support.apple.com/zh-cn/102445) 在“系统设置 → 隐私与安全性”点“仍要打开”，再确认“打开”。应用不代替你作安全确认。登录项真实注册已通过；实际下次登录自动启动、多屏、睡眠唤醒、长期运行和 Intel 硬件尚需另行验收。
+首次打开被拦截时，如果你确认下载来源，需要你本人按 [苹果官方步骤](https://support.apple.com/zh-cn/102445) 在“系统设置 → 隐私与安全性”点“仍要打开”，再确认“打开”。应用不代替你作安全确认。登录项真实注册已通过；实际下次登录自动启动、多屏、睡眠唤醒、长期运行和 Intel 硬件尚需另行验收。
 
 ## 界面预览
 
