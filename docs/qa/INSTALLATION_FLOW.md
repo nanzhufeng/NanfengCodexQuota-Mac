@@ -35,9 +35,19 @@ python3 scripts/qa-macos.py
 - 本地候选：dist/南枫Codex额度-Mac-v0.1.8-universal.dmg。
 - 固定候选哈希与生产文件摘要：`.release/install-acceptance/candidate.json`、`production-manifest.json`。
 - 实际主机设置备份：`.release/install-acceptance/settings-before.toml`，不上传。
-- 用户已授权发布 v0.1.8，正在上传；公开下载路径待回读。
+- v0.1.8 已正式发布，仅一个 DMG；公开下载回拉字节、挂载后签名／完整 App 文件和现装程序均与冻结候选匹配。
 - 安全系统确认入口不伪装、不代点；本机已经批准的状态不能证明其他 Mac 首次运行免确认。
 
-最终收尾：说明文字改为标题下单行，最小窗口也可完整显示。重新构建并再次从 DMG 更新，精确安装 PID 65077 持续运行、主界面自动打开、实际额度 55%，最近成功 21:41。最终 App 摘要 7fb998a7a3a08b8e02a40ebb5e247c0ea1ec1c83da171358e3515dcddf8a3fb8，DMG 摘要 3cf04ee08ce114cfd0c4cac8205ba8c192637a5db44522b7b32bf28dbfed5e6f。最终本地安装验证 PASS；公开 GitHub 下载仍未执行。
+最终收尾：说明文字改为标题下单行，最小窗口也可完整显示。重新构建并再次从 DMG 更新，精确安装 PID 65077 持续运行、主界面自动打开、实际额度 55%，最近成功 21:41。最终 App 摘要 7fb998a7a3a08b8e02a40ebb5e247c0ea1ec1c83da171358e3515dcddf8a3fb8，DMG 摘要 3cf04ee08ce114cfd0c4cac8205ba8c192637a5db44522b7b32bf28dbfed5e6f。最终本地安装验证 PASS；随后公开 GitHub 下载回读已通过。
 
 发布来源：源码提交 3d604ee。包在该提交前已完成安装验收，保留冻结时 Git HEAD 75b0c2c／本地改动标记；已逐一核对 14 项生产文件摘要与 3d604ee 完全一致，提交和文档更新没有重签／重打包。
+
+## GitHub 发布回读（2026-10-19）
+
+- 正式 Release：[v0.1.8](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/tag/v0.1.8)，仅 `NanfengCodexQuota-Mac-v0.1.8-universal.dmg`，4,774,749 字节。
+- 源码标签对应 3d604ee；README 主分支同步 v0.1.8 安装说明及三张当前原生 fixture 页面。
+- 远端 digest 与匿名公开下载 SHA256 均为 `3cf04ee08ce114cfd0c4cac8205ba8c192637a5db44522b7b32bf28dbfed5e6f`。
+- 回拉 DMG 挂载后严格验签、原开发 Team、Universal、版本和六个 App 文件与冻结包一致；现装可执行程序同样匹配。没有重新签名／生成产物。
+- 云端检查：[39263926873](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/actions/runs/39263926873)，HEAD 9e34a40，通过；22 项安装事务、24 项原生 UI 为本机隔离结果，未混称云端。
+- 本轮未再次触发下载件的首次系统确认；真实本机安装与使用来自同一精确冻结候选先前的验收。其他 Mac 首次安全提示仍由用户本人处理。
+- 内部记录 `.release/v018/`；不上传校验附件、报告或设置备份。
