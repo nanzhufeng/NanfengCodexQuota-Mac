@@ -12,6 +12,7 @@
 | 常规 / 关于 | AppKit SettingsView | 对照原 1064×704 内容布局、颜色、间距、导航、控件 |
 | 置顶、拖动、保存、隐藏、找回、屏幕变化 | AppDelegate / NSPanel | 设置原子保存；可见屏幕夹取、保持负坐标 |
 | 托盘、单实例、关闭与重新打开 | AppDelegate / flock | 菜单栏替代 Windows 托盘；第二实例唤回现有进程 |
+| DMG 安装／更新 | AppKit InstallationFlow / InstallationTransaction | 原生选择、同证书原子替换、保留数据、精确启动；系统授权由用户完成 |
 | 登录启动 | SMAppService.mainApp | 默认关闭，只在用户切换时注册；真实系统状态为准 |
 | 图标 / 构建来源 / 交付 | 原始 master / build.rs / build-macos.sh | 原图直接导出 icns；Git Commit 与工作区标志；独立 .app / DMG |
 

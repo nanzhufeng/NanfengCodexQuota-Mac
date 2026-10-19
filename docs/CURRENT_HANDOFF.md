@@ -1,12 +1,13 @@
 # 当前交接
 
-v0.1.7 已修复、签名打包并按用户新授权发布 GitHub；全项目状态见 PROJECT_STATUS.md，证据见 qa/REFRESH_RECOVERY.md。
+用户目标：按通用 Mac 安装标准落地，并安装验证成功。**v0.1.8 本地交付已完成**；全项目见 PROJECT_STATUS.md，安装证据见 qa/INSTALLATION_FLOW.md。
 
-- 用户新要求：总是刷新失败要优化，失败不再显示中文提示；只修复数据链与状态，保持圆环、菜单外观。
-- 生产 8d52660，39 Rust PASS／1 ignored、fmt／clippy、原生 24、Universal、精确 DMG 和真实查询通过。
-- 瞬时失败同次重试一次，总时限 12 秒；持续失败 3／10／30 秒后最多等 60 秒。圆窗保留成功时间与额度，首次失败 --%／--:--；设置失败状态英文。
-- 当前两条实际 CLI 及新包只读查询正常，截图当次上游根因未复现，不声称已定位网络故障。
-- dist/南枫Codex额度-Mac-v0.1.7-universal.dmg；SHA256 94a570f6630cfdfe6f9327b593947dad69df0e9f43ea8de62cbd0d1af8ae0ebe。36 个生产文件已冻结，后续不重签重打包。
-- main 及 v0.1.7 正式 Release 已发布，两附件下载字节一致、CI 39227895713 成功；未安装／重启旧实例，未改正式设置或登录。若用户允许安装，先核验旧新开发证书相同、备份设置和旧 App、精确退出旧实例再保数据替换，核验新版运行路径；不可直接改写运行中可执行文件。
-
-最新纠正：用户已安装 v0.1.7，仍出现系统首次启动拦截。只读核验下载与安装字节、签名均一致，不再把内部验证当作下载获准启动。系统安全确认需用户本人；不得删隔离标记。用户要求删除校验附件，已从 v0.1.7 精确删除 .sha256，现仅留原 DMG。通用发布规范已更新默认仅安装包，内部校验照常。
+- macos/Installation.swift 提供 DMG／下载目录／AppTranslocation 的原生安装或更新选择、暂不安装、取消。暂存验签、同证书替换、精确请求旧实例退出、原子交换，旧版保留到启动。系统安全确认仍由用户本人，不能由 App 替代。
+- 原安装器复用问题已修：强制目标路径新实例，核验路径／PID再结束。关于页标题下小字功能审阅，无新增常驻按钮。
+- 当前 /Applications/南枫 Codex 额度.app 是最终 v0.1.8；从最终 DMG 点击更新后自动打开，源安装器退出。实际已连接额度55%，最近成功21:41；此前连续成功21:08→21:21→21:24。运行 PID65077仅作历史值，接续需重核。
+- 精确安装与候选可执行摘要一致、严格签名通过、live validity=0。现装非位置偏好保留，仅x/y相较备份变化；没有读取或修改Codex登录文件。
+- fmt／clippy、Rust39 PASS／1 ignored、Universal、原生24／24、安装事务22 PASS。后者覆盖首次／更新／取消、损坏包／不同签名／符号链接拒绝、隔离保护位保留和临时目录清理。
+- 最终包 dist/南枫Codex额度-Mac-v0.1.8-universal.dmg，摘要见 .release/install-acceptance/candidate.json；生产摘要 production-manifest.json，验收 installed.json。旧0.1.7 app／DMG备份 .release/frozen-v017；设置备份 .release/install-acceptance/settings-before.toml。
+- 用户已要求打包上传 GitHub：v0.1.8 正在发布，源码提交3d604ee，冻结 DMG单附件；公开下载回读待执行。不要把本机同身份更新当成全新Mac首次下载免确认。
+- 源码与安装测试已提交3d604ee；当前发布同步 README 最新原生截图与安装说明，冻结包不重建。待正式 Release、公开回拉摘要及 CI 完成后更新状态；不上传校验文件。
+- 长期规则已写产品标准Skill；记忆更新说明20261019-191940-mac-installation-guidance-standard.md已提交待系统合并。

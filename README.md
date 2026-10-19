@@ -11,9 +11,9 @@ macOS 原生只读额度悬浮窗，复用本机 Codex 登录，无需保持 Cod
 
 ## 安装与使用
 
-支持 macOS 13+，Apple Silicon / Intel 通用二进制。[下载最新版安装包](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/latest)。打开 DMG，将“南枫 Codex 额度.app”拖到 Applications。先在 Codex 中登录，再运行应用。
+支持 macOS 13+，Apple Silicon / Intel 通用二进制。[下载最新版安装包](https://github.com/nanzhufeng/NanfengCodexQuota-Mac/releases/latest)。打开 DMG，双击“南枫 Codex 额度.app”，选择“安装并打开”；已有版本时选择“更新并打开”。更新会保留设置，并自动打开“应用程序”中的版本。也可选择暂不安装或取消。先在 Codex 中登录，再使用额度监控。
 
-GitHub 附件 `NanfengCodexQuota-Mac-v0.1.7-universal.dmg` 对应本地中文安装包“南枫Codex额度-Mac-v0.1.7-universal.dmg”。
+GitHub 附件 `NanfengCodexQuota-Mac-v0.1.8-universal.dmg` 对应本地中文安装包“南枫Codex额度-Mac-v0.1.8-universal.dmg”。
 
 安装后可从系统应用列表或 Dock 找到应用。点击或双击菜单栏图标打开主界面；右键菜单栏或圆窗可刷新、打开主界面、切换置顶、隐藏 / 显示与退出。双击圆窗也可打开主界面。关闭设置窗口后额度监控继续运行。
 
@@ -25,7 +25,7 @@ GitHub 附件 `NanfengCodexQuota-Mac-v0.1.7-universal.dmg` 对应本地中文安
 
 ## 界面预览
 
-Mac v0.1.7，生产提交 `8d52660`，Apple Silicon / macOS 26.5.2 的真实原生运行页面。常规与关于内容区 1064×711 pt，悬浮窗 132×132 pt；额度来自隔离 fixture，截图不包含用户账户数据。
+Mac v0.1.8，Apple Silicon / macOS 26.5.2 的真实原生运行页面。常规与关于内容区 1064×711 pt，悬浮窗 132×132 pt；额度来自隔离 fixture，截图不包含用户账户数据。
 
 ![悬浮窗](docs/images/mac-widget.png)
 
